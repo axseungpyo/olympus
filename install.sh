@@ -280,6 +280,13 @@ EOF
 
     touch "artifacts/logs/execution.log"
 
+    # Codex CLI는 git repo를 요구함 — 없으면 자동 초기화
+    if [ ! -d ".git" ]; then
+        git init -q
+        git branch -m main 2>/dev/null || true
+        echo -e "   ${GREEN}✓${NC} git init (Codex CLI 요구사항)"
+    fi
+
     echo ""
     echo -e "${GREEN}${BOLD}완료!${NC} 프로젝트 준비됨: $(pwd)"
     echo ""

@@ -69,7 +69,7 @@ Argus의 출력을 바탕으로 Hephaestus용 TP를 자동 생성:
 ### Step 5: Phase 2 — Hephaestus 실행
 
 ```bash
-codex -q --approval-mode auto-edit \
+codex exec --full-auto \
   "Read AGENTS.md for agent rules.
    Read artifacts/handoff/RP-NNN-vision.md for Argus vision analysis results.
    Read artifacts/handoff/TP-NNN-impl.md for implementation spec.

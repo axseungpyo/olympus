@@ -47,7 +47,7 @@ status: `draft` -> `in-progress`, Updated: {datetime}
 
 **기본 (simple/moderate/complex):**
 ```bash
-codex -q --approval-mode auto-edit \
+codex exec --full-auto \
   "Read AGENTS.md to understand your role as Hephaestus and the RP format.
    Read shared/context.md for project context.
    Then read artifacts/handoff/TP-NNN.md and implement the task exactly as specified.
@@ -56,7 +56,7 @@ codex -q --approval-mode auto-edit \
 
 **extreme (Inferno 모드):**
 ```bash
-codex -q --approval-mode full-auto \
+codex exec --full-auto \
   "Read AGENTS.md to understand your role as Hephaestus and the RP format.
    Read shared/context.md for project context.
    Then read artifacts/handoff/TP-NNN.md and implement the task exactly as specified.
