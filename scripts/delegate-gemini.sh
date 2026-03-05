@@ -22,7 +22,7 @@ TP_ID="${1:?Usage: delegate-gemini.sh TP-NNN [--input image.png]}"
 
 if [[ ! "$TP_ID" =~ ^TP-[0-9]{3,}(-[a-z]+)?$ ]]; then
     echo "❌ 잘못된 TP_ID 형식: '$TP_ID'"
-    echo "   올바른 형식: TP-NNN (예: TP-001, TP-012)"
+    echo "   올바른 형식: TP-NNN 또는 TP-NNN-suffix (예: TP-001, TP-002-vision)"
     exit 1
 fi
 
