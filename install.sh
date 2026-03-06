@@ -64,7 +64,7 @@ if $REMOTE; then
     OLYMPUS_SRC="$TMP_DIR"
 
     echo -e "${CYAN}파일 다운로드 중...${NC}"
-    SKILLS=(plan delegate review delegate-gemini chain scout digest status)
+    SKILLS=(plan delegate review delegate-gemini chain scout team digest status)
     for skill in "${SKILLS[@]}"; do
         mkdir -p "$TMP_DIR/.claude/skills/$skill"
         if curl -fsSL "$BASE_URL/.claude/skills/$skill/SKILL.md" \
@@ -87,7 +87,7 @@ fi
 # ─── 2. Skills 글로벌 설치 ───
 echo -e "${CYAN}[2/5] Skills 글로벌 등록 (~/.claude/skills/)...${NC}"
 
-SKILLS=(plan delegate review delegate-gemini chain scout digest status)
+SKILLS=(plan delegate review delegate-gemini chain scout team digest status)
 for skill in "${SKILLS[@]}"; do
     src="$OLYMPUS_SRC/.claude/skills/$skill"
     dst="$CLAUDE_DIR/skills/$skill"
