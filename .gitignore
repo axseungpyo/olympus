@@ -3,8 +3,8 @@
 .AppleDouble
 .LSOverride
 
-# 프로젝트별 런타임 파일 (olympus new로 생성되는 것들)
-# 이 파일들은 각 프로젝트 고유이므로 Olympus 저장소에 포함하지 않음
+# 프로젝트별 런타임 파일 (asgard new로 생성되는 것들)
+# 이 파일들은 각 프로젝트 고유이므로 Asgard 저장소에 포함하지 않음
 artifacts/handoff/
 artifacts/logs/
 artifacts/research/

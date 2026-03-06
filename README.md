@@ -25,7 +25,7 @@ Brokkr          Heimdall
 | 도구 | 목적 | 설치 |
 |------|------|------|
 | [Claude Code](https://claude.ai/code) | Odin (Brain) | Claude Pro/Team 구독 |
-| [Codex CLI](https://openai.com/codex) | Brokkr (코드) | ChatGPT Pro 구독 |
+| [Codex CLI](https://openai.com/codex) | Brokkr (코드) | ChatGPT Plus 구독 |
 | [Gemini CLI](https://github.com/google-gemini/gemini-cli) | Heimdall (비전) | `npm install -g @google/gemini-cli` |
 | coreutils | timeout 호환 | `brew install coreutils` (macOS) |
 
@@ -88,6 +88,44 @@ Claude Code 세션에서:
 
 ```
 /review RP-001
+```
+
+### 실전 예시: 로그인 기능 구현
+
+아래는 `/plan` → `/delegate` → `/review` 한 사이클의 실제 흐름입니다.
+
+**Step 1: Rune 생성**
+```
+사용자: /plan "이메일 로그인 기능 구현"
+
+Odin[Counsel]:
+TP-002 생성 완료: 이메일 로그인 기능 구현
+Agent: Brokkr [Anvil]
+파일: artifacts/handoff/TP-002.md
+
+다음: /delegate TP-002
+```
+
+**Step 2: Brokkr 실행**
+```
+사용자: /delegate TP-002
+
+⚒️ Brokkr[Anvil] 니다벨리르 점화: TP-002 실행 중...
+   (Codex CLI 실행 — 약 2~5분 소요)
+✅ Brokkr[Anvil] Saga 도착: RP-002
+
+검토 준비 완료. 다음: /review RP-002
+```
+
+**Step 3: Saga 검토**
+```
+사용자: /review RP-002
+
+Odin[Counsel] 심판: RP-002 APPROVED
+
+완료: 이메일 로그인 기능 구현
+변경 파일: 4개
+다음 작업: 회원가입 기능 (TP-003 제안)
 ```
 
 ---
@@ -198,14 +236,14 @@ gemini -p \
 
 ### 안전장치
 
-Gemini 실행 시 Watchdog 보호 시스템이 내장되어 있습니다:
+Brokkr/Heimdall 실행 시 Watchdog 보호 시스템이 내장되어 있습니다:
 
-| 보호 | 기본값 | 동작 |
-|------|-------|------|
-| 전체 타임아웃 | 300초 | `timeout`/`gtimeout`으로 강제 종료 |
-| 출력 정체 감지 | 60초 무출력 | 프로세스 강제 종료 |
-| 로그 크기 제한 | 2MB | 초과 시 강제 종료 |
-| 에러 루프 감지 | 동일 에러 3회 | 반복 패턴 시 강제 종료 |
+| 보호 | Brokkr (Codex) | Heimdall (Gemini) | 동작 |
+|------|---------------|-------------------|------|
+| 전체 타임아웃 | 600초 (extreme: 1800초) | 300초 | `timeout`/`gtimeout`으로 강제 종료 |
+| 출력 정체 감지 | 120초 무출력 | 60초 무출력 | 프로세스 강제 종료 |
+| 로그 크기 제한 | 5MB | 2MB | 초과 시 강제 종료 |
+| 에러 루프 감지 | 동일 에러 3회 | 동일 에러 3회 | 반복 패턴 시 강제 종료 |
 
 ---
 
@@ -224,6 +262,8 @@ Gemini 실행 시 Watchdog 보호 시스템이 내장되어 있습니다:
 | `/review RP-NNN` | Saga 검토 및 판정 |
 | `/digest` | 프로젝트 맥락 압축 업데이트 |
 | `/status` | 현재 작업 현황 보고 |
+| `/retry TP-NNN` | 실패한 TP 재실행 |
+| `/validate TP-NNN` | TP 포맷/품질 검증 |
 | `/init` | 새 프로젝트 아티팩트 구조 초기화 |
 
 ---
@@ -255,6 +295,7 @@ my-project/
 │   └── logs/
 ├── shared/context.md          # 프로젝트 맥락 (Lore)
 ├── scripts/
+│   ├── delegate-codex.sh      # Brokkr 실행 래퍼
 │   └── delegate-gemini.sh     # Heimdall 실행 래퍼
 └── src/                       # 코드 (Brokkr 관할)
 ```

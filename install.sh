@@ -64,7 +64,7 @@ if $REMOTE; then
     ASGARD_SRC="$TMP_DIR"
 
     echo -e "${CYAN}파일 다운로드 중...${NC}"
-    SKILLS=(plan delegate review delegate-gemini chain scout team digest status)
+    SKILLS=(plan delegate review delegate-gemini chain scout team digest status retry validate)
     for skill in "${SKILLS[@]}"; do
         mkdir -p "$TMP_DIR/.claude/skills/$skill"
         if curl -fsSL "$BASE_URL/.claude/skills/$skill/SKILL.md" \
@@ -81,13 +81,15 @@ if $REMOTE; then
     curl -fsSL "$BASE_URL/CLAUDE.md"                 -o "$TMP_DIR/CLAUDE.md"
     curl -fsSL "$BASE_URL/scripts/delegate-gemini.sh" -o "$TMP_DIR/scripts/delegate-gemini.sh"
     chmod +x "$TMP_DIR/scripts/delegate-gemini.sh"
+    curl -fsSL "$BASE_URL/scripts/delegate-codex.sh" -o "$TMP_DIR/scripts/delegate-codex.sh"
+    chmod +x "$TMP_DIR/scripts/delegate-codex.sh"
     echo ""
 fi
 
 # ─── 2. Skills 글로벌 설치 ───
 echo -e "${CYAN}[2/5] Skills 글로벌 등록 (~/.claude/skills/)...${NC}"
 
-SKILLS=(plan delegate review delegate-gemini chain scout team digest status)
+SKILLS=(plan delegate review delegate-gemini chain scout team digest status retry validate)
 for skill in "${SKILLS[@]}"; do
     src="$ASGARD_SRC/.claude/skills/$skill"
     dst="$CLAUDE_DIR/skills/$skill"
@@ -109,6 +111,8 @@ cp "$ASGARD_SRC/AGENTS.md" "$ASGARD_HOME/templates/AGENTS.md"
 cp "$ASGARD_SRC/CLAUDE.md"   "$ASGARD_HOME/templates/CLAUDE.md"
 cp "$ASGARD_SRC/scripts/delegate-gemini.sh" "$ASGARD_HOME/scripts/delegate-gemini.sh"
 chmod +x "$ASGARD_HOME/scripts/delegate-gemini.sh"
+cp "$ASGARD_SRC/scripts/delegate-codex.sh" "$ASGARD_HOME/scripts/delegate-codex.sh"
+chmod +x "$ASGARD_HOME/scripts/delegate-codex.sh"
 
 cat > "$ASGARD_HOME/templates/context.md" << 'EOF'
 # Asgard Lore — Project Context
@@ -174,7 +178,7 @@ if [ -f "$ASGARD_SRC/VERSION" ]; then
 fi
 
 echo -e "   ${GREEN}✓${NC} AGENTS.md, CLAUDE.md, settings.json 템플릿"
-echo -e "   ${GREEN}✓${NC} delegate-gemini.sh"
+echo -e "   ${GREEN}✓${NC} delegate-gemini.sh, delegate-codex.sh"
 
 # ─── 4. asgard CLI 설치 ───
 echo -e "${CYAN}[4/5] asgard CLI 설치...${NC}"
@@ -246,6 +250,10 @@ cmd_new() {
     chmod +x "scripts/delegate-gemini.sh"
     echo -e "   ${GREEN}✓${NC} scripts/delegate-gemini.sh"
 
+    cp "$ASGARD_HOME/scripts/delegate-codex.sh" "scripts/delegate-codex.sh"
+    chmod +x "scripts/delegate-codex.sh"
+    echo -e "   ${GREEN}✓${NC} scripts/delegate-codex.sh"
+
     if [ ! -f "artifacts/INDEX.md" ]; then
         cat > "artifacts/INDEX.md" << EOF
 # Asgard Chronicle — Work Status Index
@@ -312,7 +320,7 @@ cmd_update() {
     tmp_dir=$(mktemp -d)
     trap "rm -rf '$tmp_dir'" EXIT
 
-    local skills=(plan delegate review delegate-gemini chain scout team digest status)
+    local skills=(plan delegate review delegate-gemini chain scout team digest status retry validate)
     for skill in "${skills[@]}"; do
         mkdir -p "$tmp_dir/$skill"
         if curl -fsSL "$base_url/.claude/skills/$skill/SKILL.md" \
@@ -329,6 +337,12 @@ cmd_update() {
            -o "$ASGARD_HOME/scripts/delegate-gemini.sh" 2>/dev/null; then
         chmod +x "$ASGARD_HOME/scripts/delegate-gemini.sh"
         echo -e "   ${GREEN}✓${NC} delegate-gemini.sh"
+    fi
+
+    if curl -fsSL "$base_url/scripts/delegate-codex.sh" \
+           -o "$ASGARD_HOME/scripts/delegate-codex.sh" 2>/dev/null; then
+        chmod +x "$ASGARD_HOME/scripts/delegate-codex.sh"
+        echo -e "   ${GREEN}✓${NC} delegate-codex.sh"
     fi
 
     # 버전 업데이트
@@ -355,7 +369,7 @@ cmd_doctor() {
     }
 
     echo "글로벌 Skills:"
-    for skill in plan delegate review delegate-gemini chain scout team digest status; do
+    for skill in plan delegate review delegate-gemini chain scout team digest status retry validate; do
         check "$skill" "$HOME/.claude/skills/$skill/SKILL.md"
     done
 
@@ -363,13 +377,34 @@ cmd_doctor() {
     echo "Asgard 코어:"
     check "AGENTS.md 템플릿"  "$ASGARD_HOME/templates/AGENTS.md"
     check "delegate-gemini.sh" "$ASGARD_HOME/scripts/delegate-gemini.sh"
+    check "delegate-codex.sh"  "$ASGARD_HOME/scripts/delegate-codex.sh"
     check "asgard CLI"        "$ASGARD_HOME/bin/asgard"
 
     echo ""
     echo "외부 도구:"
-    command -v codex   &>/dev/null && echo -e "   ${GREEN}✓${NC} codex"   || echo -e "   ${YELLOW}✗${NC} codex (ChatGPT Pro 필요)"
+    command -v codex   &>/dev/null && echo -e "   ${GREEN}✓${NC} codex"   || echo -e "   ${YELLOW}✗${NC} codex (ChatGPT Plus 필요)"
     command -v gemini  &>/dev/null && echo -e "   ${GREEN}✓${NC} gemini"  || echo -e "   ${YELLOW}✗${NC} gemini (npm install -g @google/gemini-cli)"
     command -v gtimeout &>/dev/null && echo -e "   ${GREEN}✓${NC} gtimeout" || echo -e "   ${YELLOW}~${NC} gtimeout 없음 (권장: brew install coreutils)"
+
+    # ─── 프로젝트 레벨 진단 (CLAUDE.md + AGENTS.md 존재 시) ───
+    if [ -f "CLAUDE.md" ] && [ -f "AGENTS.md" ]; then
+        echo ""
+        echo -e "${BOLD}Asgard 프로젝트 진단 ($(basename "$(pwd)")):${NC}"
+
+        check "CLAUDE.md"           "CLAUDE.md"
+        check "AGENTS.md"           "AGENTS.md"
+        check "artifacts/INDEX.md"  "artifacts/INDEX.md"
+        check "shared/context.md"   "shared/context.md"
+
+        if [ -f "artifacts/INDEX.md" ]; then
+            local blocked_count
+            blocked_count=$(grep -c '| *blocked *|' "artifacts/INDEX.md" 2>/dev/null || echo "0")
+            local review_count
+            review_count=$(grep -c '| *review-needed *|' "artifacts/INDEX.md" 2>/dev/null || echo "0")
+            echo -e "   blocked 태스크: ${blocked_count}개"
+            echo -e "   미검토 RP (review-needed): ${review_count}개"
+        fi
+    fi
 
     echo ""
     $ok && echo -e "${GREEN}모든 구성 요소 정상.${NC}" || echo -e "${YELLOW}일부 구성 요소 누락. install.sh를 다시 실행하세요.${NC}"
