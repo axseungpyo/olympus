@@ -1,13 +1,13 @@
 ---
 name: status
 description: >
-  Olympus 프로젝트의 현재 작업 상태를 요약하여 보고한다.
-  "status", "상태", "현황", "어디까지 됐어", "진행 상황", "olympus",
+  Asgard 프로젝트의 현재 작업 상태를 요약하여 보고한다.
+  "status", "상태", "현황", "어디까지 됐어", "진행 상황", "asgard",
   "뭐가 남았어" 등에 트리거.
 allowed-tools: Read, Glob
 ---
 
-# /status — Olympus 현황 보고
+# /status — Asgard 현황 보고
 
 ## 역할
 
@@ -34,7 +34,7 @@ INDEX.md에서 아래를 집계:
 아래 형식으로 출력:
 
 ```
-Olympus 현황 — {datetime}
+Asgard 현황 — {datetime}
 
 프로젝트: {Project Summary}
 단계: {Current Phase}
@@ -48,7 +48,7 @@ Olympus 현황 — {datetime}
 
 {review-needed가 있으면}
 즉시 검토 필요:
-  - RP-NNN: {Title} [Hephaestus/Argus]
+  - RP-NNN: {Title} [Brokkr/Heimdall]
   -> /review RP-NNN
 
 {blocked가 있으면}
@@ -67,5 +67,5 @@ Olympus 현황 — {datetime}
 
 `/status quick` 또는 빠른 확인이 필요할 때:
 ```
-Olympus: done={n} / review={n} / running={n} / blocked={n} | 다음: TP-{NNN}
+Asgard: done={n} / review={n} / running={n} / blocked={n} | 다음: TP-{NNN}
 ```

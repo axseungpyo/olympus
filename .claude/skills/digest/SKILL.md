@@ -38,7 +38,7 @@ allowed-tools: Read, Write, Glob
 아래 섹션을 업데이트한다:
 
 ```markdown
-# Olympus Lore — Project Context
+# Asgard Lore — Project Context
 
 Last updated: {datetime}
 
@@ -67,7 +67,7 @@ Last updated: {datetime}
 업데이트 원칙:
 - Recent Progress는 최근 5개만 유지 (오래된 것 삭제)
 - 파일 크기 목표: 100줄 이하
-- 미래의 Athena가 5분 안에 맥락을 파악할 수 있어야 함
+- 미래의 Odin이 5분 안에 맥락을 파악할 수 있어야 함
 
 ### Step 4: 완료 보고
 

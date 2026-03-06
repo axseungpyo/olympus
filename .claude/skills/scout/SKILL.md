@@ -1,21 +1,21 @@
 ---
 name: scout
 description: >
-  Claude 서브에이전트를 병렬로 실행하여 코드베이스 탐색, RP 검증, 기획 리서치를 수행한다.
+  Claude 서브에이전트를 병렬로 실행하여 코드베이스 탐색, Saga 검증, 기획 리서치를 수행한다.
   "scout", "정찰", "탐색", "병렬 분석", "코드 조사", "멀티 분석",
   "verify", "검증해줘", "코드베이스 파악" 등에 트리거.
-  Athena가 직접 실행하는 내부 서브에이전트 (외부 CLI 호출 아님).
+  Odin이 직접 실행하는 내부 서브에이전트 (외부 CLI 호출 아님).
 allowed-tools: Read, Write, Glob, Grep, Agent
 ---
 
-# /scout — Athena 정찰대 (Claude 서브에이전트 병렬 실행)
+# /scout — Odin 정찰대 (Claude 서브에이전트 병렬 실행)
 
 ## 역할
 
-Athena가 판단을 내리기 전에 **Claude 서브에이전트를 병렬로** 보내어
-코드베이스 탐색, RP 검증, 기획 리서치를 수행한다.
+Odin이 판단을 내리기 전에 **Claude 서브에이전트를 병렬로** 보내어
+코드베이스 탐색, Saga 검증, 기획 리서치를 수행한다.
 
-Hephaestus(Codex)/Argus(Gemini)와 다른 점:
+Brokkr(Codex)/Heimdall(Gemini)와 다른 점:
 - **외부 CLI가 아닌 Claude 자체 분신** — 더 빠르고 컨텍스트 공유
 - **읽기 전용** — 코드를 수정하지 않고 정보만 수집
 - **병렬 실행** — 독립적인 질문은 동시에 처리
@@ -136,4 +136,4 @@ Scout 리서치 완료: "OAuth 소셜 로그인"
 - 단순한 질문 (파일 1개 확인) → `/scout` 불필요, 직접 Read 사용
 - 코드 구현이 필요한 작업 → `/scout`가 아니라 `/delegate` 사용
 - 이미지/비전 분석 → `/scout`가 아니라 `/delegate-gemini` 사용
-- `/scout`는 **정보 수집 전용** — 판단과 실행은 Athena 본체가 직접 수행
+- `/scout`는 **정보 수집 전용** — 판단과 실행은 Odin 본체가 직접 수행

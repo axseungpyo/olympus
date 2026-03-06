@@ -1,17 +1,17 @@
 ---
 name: review
 description: >
-  Hephaestus 또는 Argus가 제출한 RESULT_PACKET(RP-NNN.md)을 검토하고 판정한다.
-  "review", "검토", "RP 확인", "결과 봐줘", "승인", "판정", "공물 도착" 등에 트리거.
-  TP의 Acceptance Criteria와 RP를 대조 검증한다.
+  Brokkr 또는 Heimdall이 제출한 Saga(RP-NNN.md)를 검토하고 판정한다.
+  "review", "검토", "RP 확인", "결과 봐줘", "승인", "판정", "Saga 도착" 등에 트리거.
+  TP의 Acceptance Criteria와 Saga를 대조 검증한다.
 allowed-tools: Read, Write, Glob
 ---
 
-# /review — RESULT_PACKET (RP) 검토
+# /review — Saga (RP) 검토
 
 ## 역할
 
-Hephaestus(Codex) 또는 Argus(Gemini)의 작업 결과(RP)를 TP의 계약 기준으로 검토하고
+Brokkr(Codex) 또는 Heimdall(Gemini)의 작업 결과(Saga)를 Rune(TP)의 계약 기준으로 검토하고
 approved / revision / blocked 중 하나로 판정한다.
 
 ## 실행 절차
@@ -26,9 +26,9 @@ approved / revision / blocked 중 하나로 판정한다.
 
 ### Step 2: Acceptance Criteria 대조
 
-TP의 각 AC에 대해 RP의 "Acceptance Criteria Check"와 비교:
+TP의 각 AC에 대해 Saga의 "Acceptance Criteria Check"와 비교:
 
-| AC 항목 | RP 보고 | 실제 증거 | 판단 |
+| AC 항목 | Saga 보고 | 실제 증거 | 판단 |
 |---------|---------|---------|------|
 | ... | PASS/FAIL | ... | OK/NG |
 
@@ -59,7 +59,7 @@ TP의 각 AC에 대해 RP의 "Acceptance Criteria Check"와 비교:
 
 보고:
 ```
-Athena[Insight] 심판: RP-NNN APPROVED
+Odin[Counsel] 심판: RP-NNN APPROVED
 
 완료: {Title}
 변경 파일: {n}개
@@ -79,7 +79,7 @@ Athena[Insight] 심판: RP-NNN APPROVED
 
 보고:
 ```
-Athena[Insight] 심판: RP-NNN REVISION NEEDED
+Odin[Counsel] 심판: RP-NNN REVISION NEEDED
 
 미통과 항목:
 - AC N: {실패 이유}
@@ -93,8 +93,8 @@ Athena[Insight] 심판: RP-NNN REVISION NEEDED
 ---
 
 **blocked (차단):**
-- RP가 존재하지 않음
-- Hephaestus/Argus가 작업을 완료하지 못함
+- Saga가 존재하지 않음
+- Brokkr/Heimdall이 작업을 완료하지 못함
 - 환경 문제, 의존성 오류 등
 
 조치:
@@ -103,7 +103,7 @@ Athena[Insight] 심판: RP-NNN REVISION NEEDED
 
 보고:
 ```
-Athena[Insight] 심판: RP-NNN BLOCKED
+Odin[Counsel] 심판: RP-NNN BLOCKED
 
 차단 원인: {원인}
 해결 방안: {제안}

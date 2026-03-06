@@ -1,19 +1,19 @@
 ---
 name: plan
 description: >
-  TASK_PACKET(TP-NNN.md)을 생성한다.
-  "기획", "plan", "TP 작성", "태스크 만들어", "작업 지시", "Hephaestus에게 시켜",
-  "Argus에게 시켜", "구현 계획" 등에 트리거.
+  Rune(TP-NNN.md)을 생성한다.
+  "기획", "plan", "TP 작성", "태스크 만들어", "작업 지시", "Brokkr에게 시켜",
+  "Heimdall에게 시켜", "구현 계획" 등에 트리거.
   새로운 개발 작업, 기능 추가, 버그 수정, 리서치 등 모든 작업의 시작점.
 allowed-tools: Read, Write, Glob
 ---
 
-# /plan — TASK_PACKET 생성
+# /plan — Rune 생성
 
 ## 역할
 
-사용자 요청을 분석하여 Hephaestus(Codex) 또는 Argus(Gemini)가 바로 실행할 수 있는
-구체적인 TASK_PACKET(TP-NNN.md)을 생성한다.
+사용자 요청을 분석하여 Brokkr(Codex) 또는 Heimdall(Gemini)가 바로 실행할 수 있는
+구체적인 Rune(TP-NNN.md)을 생성한다.
 
 ## 실행 절차
 
@@ -35,16 +35,16 @@ allowed-tools: Read, Write, Glob
 | 스크린샷 -> 코드 구현 | chain:gemini->codex |
 
 **Complexity Hint 결정 (Codex만):**
-| 작업 규모 | Hint | Hephaestus Mode |
-|---------|------|----------------|
-| 단순 편집, 설정 파일 | simple | Ember |
-| 일반 기능 구현, 테스트 | moderate | Flame (기본값) |
-| 멀티파일 리팩토링, 복잡한 로직 | complex | Blaze |
-| MVP 전체, 장시간 자율 작업 | extreme | Inferno |
+| 작업 규모 | Hint | Brokkr Mode |
+|---------|------|------------|
+| 단순 편집, 설정 파일 | simple | Spark |
+| 일반 기능 구현, 테스트 | moderate | Anvil (기본값) |
+| 멀티파일 리팩토링, 복잡한 로직 | complex | Mjolnir |
+| MVP 전체, 장시간 자율 작업 | extreme | Ragnarok |
 
 ### Step 3: TP 작성
 
-`artifacts/handoff/TP-NNN.md`를 AGENTS.md의 TP 형식에 따라 작성한다.
+`artifacts/handoff/TP-NNN.md`를 AGENTS.md의 Rune 형식에 따라 작성한다.
 
 작성 원칙:
 - Objective는 정확히 한 문장. 동사로 시작.
@@ -79,7 +79,7 @@ Next TP Number를 TP-(NNN+1)로 업데이트.
 
 ```
 TP-NNN 생성 완료: {Title}
-Agent: {Hephaestus|Argus} [{Mode}]
+Agent: {Brokkr|Heimdall} [{Mode}]
 파일: artifacts/handoff/TP-NNN.md
 
 다음: /delegate TP-NNN 또는 /delegate-gemini TP-NNN

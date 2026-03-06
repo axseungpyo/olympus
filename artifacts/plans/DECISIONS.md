@@ -1,4 +1,4 @@
-# Olympus Edicts — Design Decisions
+# Asgard Edicts — Design Decisions
 
 (Options / Chosen / Rationale / Tradeoffs / Review Condition 형식으로 기록)
 
@@ -72,7 +72,7 @@
 
 ---
 
-## Decision 6: RP 포맷 .md 단일화
+## Decision 6: Saga(RP) 포맷 .md 단일화
 
 - **Date**: 2026-03-06
 - **Options**: A) .json 출력, B) .md 출력, C) 병행
@@ -83,14 +83,27 @@
 
 ---
 
-## Decision 7: Olympus 테마 Option B (하이브리드) 채택
+## Decision 7: Asgard 테마 하이브리드 채택
 
 - **Date**: 2026-03-06
 - **Options**:
-  - A) 모든 파일명과 Skill 이름을 Olympus 테마 적용 (ATHENA.md, /forge 등)
+  - A) 모든 파일명과 Skill 이름을 Asgard 테마 적용
   - B) 에이전트 이름만 신화 테마, 파일/Skill은 기능 기반 (/plan, /delegate 등)
   - C) 이름만 내부에서 사용
 - **Chosen**: B
-- **Rationale**: 에이전트 캐릭터성(Athena/Hephaestus/Argus)은 유지하되, 파일/Skill 이름은 기능으로 직관성 확보.
+- **Rationale**: 에이전트 캐릭터성(Odin/Brokkr/Heimdall)은 유지하되, 파일/Skill 이름은 기능으로 직관성 확보.
 - **Tradeoffs**: 완전한 몰입감은 아님. 하지만 신규 참여자 이해 비용 최소화.
+- **Review Condition**: 없음
+
+---
+
+## Decision 8: Olympus에서 Asgard로 테마 전환
+
+- **Date**: 2026-03-06
+- **Options**:
+  - A) Olympus(그리스 신화) 테마 유지
+  - B) Asgard(북유럽 신화) 테마로 전환
+- **Chosen**: B
+- **Rationale**: 북유럽 신화의 역할 분담이 시스템 구조와 더 정확히 매핑됨. Odin(전략가)→Brokkr(장인)→Heimdall(관측자)의 관계가 Brain→Code→Vision 구조에 자연스럽게 대응. Loki(변환자)로 향후 이미지 생성 에이전트 확장 가능.
+- **Tradeoffs**: 기존 Olympus 참조 코드/문서와의 호환성 단절. GitHub 저장소명 변경 필요.
 - **Review Condition**: 없음

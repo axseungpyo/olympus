@@ -1,19 +1,19 @@
 ---
 name: delegate-gemini
 description: >
-  Argus(Gemini CLI)에게 TASK_PACKET을 전달하여 비전/생성 작업을 위임한다.
-  "gemini", "Argus", "이미지 분석", "이미지 생성", "스크린샷 분석",
+  Heimdall(Gemini CLI)에게 Rune(TP)을 전달하여 비전/생성 작업을 위임한다.
+  "gemini", "Heimdall", "이미지 분석", "이미지 생성", "스크린샷 분석",
   "PDF 분석", "문서 OCR", "웹 리서치", "비전 작업" 등에 트리거.
   Agent Target이 "gemini"인 TP에 사용.
 allowed-tools: Read, Write, Bash, Glob
 ---
 
-# /delegate-gemini — Argus(Gemini) 실행 위임
+# /delegate-gemini — Heimdall(Gemini) 실행 위임
 
 ## 역할
 
 비전(이미지/영상 분석), 이미지 생성/편집, 대규모 문서 처리, 웹 리서치 등
-Argus(Gemini CLI)의 멀티모달 능력이 필요한 작업을 위임한다.
+Heimdall(Gemini CLI)의 멀티모달 능력이 필요한 작업을 위임한다.
 
 ## 실행 절차
 
@@ -33,21 +33,21 @@ TP의 `Multimodal Input` 섹션 확인:
 - 문서 파일이 명시된 경우 해당 경로 존재 확인
 - 파일 없으면 사용자에게 알리고 중단
 
-### Step 3: Gaze Focus Mode 결정
+### Step 3: Sight Range Mode 결정
 
 TP의 Vision Task 유형:
-| Vision Task | Argus Mode | 비고 |
-|-------------|-----------|------|
-| analyze, ocr | Gaze (3.1 Pro) | 기본값 |
-| analyze (대량 파일) | Glimpse (Flash-Lite) | 빠른 분류 |
-| generate, edit | Vision (Pro Image) | 이미지 생성 |
-| screenshot-to-code | Gaze (3.1 Pro) | 분석 후 Codex 체인 |
+| Vision Task | Heimdall Mode | 비고 |
+|-------------|--------------|------|
+| analyze, ocr | Bifrost (3.1 Pro) | 기본값 |
+| analyze (대량 파일) | Glint (Flash-Lite) | 빠른 분류 |
+| generate, edit | Gjallarhorn (Pro Image) | 이미지 생성 |
+| screenshot-to-code | Bifrost (3.1 Pro) | 분석 후 Codex 체인 |
 
 ### Step 4: INDEX.md 상태 업데이트
 
 status: `draft` -> `in-progress`, Updated: {datetime}
 
-### Step 5: Argus 소환
+### Step 5: Heimdall 소환
 
 `scripts/delegate-gemini.sh`를 통해 실행:
 
@@ -64,7 +64,7 @@ bash scripts/delegate-gemini.sh TP-NNN --output-dir src/assets/
 
 실행 중 상태 메시지:
 ```
-Argus[{Mode}] 천 개의 눈 활성화: TP-NNN 분석 중...
+Heimdall[{Mode}] 비프로스트 활성화: TP-NNN 분석 중...
 ```
 
 ### Step 6: 결과 확인
@@ -78,7 +78,7 @@ Argus[{Mode}] 천 개의 눈 활성화: TP-NNN 분석 중...
 ### Step 7: 완료 보고
 
 ```
-Argus[{Mode}] 관측 완료: RP-NNN
+Heimdall[{Mode}] 관측 완료: RP-NNN
 
 검토 준비 완료. 다음: /review RP-NNN
 ```
@@ -99,18 +99,18 @@ Watchdog이 강제 종료한 경우:
 2. INDEX.md status -> `blocked`
 3. 사용자에게 원인 보고
 
-## RP Fallback
+## Saga Fallback
 
-Gemini가 RP 파일을 직접 생성하지 못한 경우:
-1. 로그에서 `# RP-NNN` 헤더를 검색하여 RP 추출 시도
-2. 그래도 없으면 전체 로그를 RP 포맷으로 래핑
-3. Athena가 fallback RP를 검토 후 판정
+Gemini가 Saga(RP) 파일을 직접 생성하지 못한 경우:
+1. 로그에서 `# RP-NNN` 헤더를 검색하여 Saga 추출 시도
+2. 그래도 없으면 전체 로그를 Saga 포맷으로 래핑
+3. Odin이 fallback Saga를 검토 후 판정
 
 ## 오류 처리
 
 **Gemini 미설치:**
 ```
-Argus를 찾을 수 없습니다.
+Heimdall을 찾을 수 없습니다.
 설치: npm install -g @google/gemini-cli
 인증: gemini 실행 후 Google 계정 로그인
 ```
@@ -125,6 +125,6 @@ Argus를 찾을 수 없습니다.
 
 **TP Agent Target이 gemini가 아닌 경우:**
 ```
-이 TP는 Hephaestus(Codex) 작업입니다.
+이 TP는 Brokkr(Codex) 작업입니다.
 /delegate TP-NNN을 사용하세요.
 ```

@@ -1,4 +1,4 @@
-# /init — Olympus Project Initializer
+# /init — Asgard Project Initializer
 
 새 프로젝트를 위한 아티팩트 구조를 초기화한다.
 
@@ -23,7 +23,7 @@
 
    없으면 아래 형식으로 생성한다:
    ```markdown
-   # Olympus Chronicle — Work Status Index
+   # Asgard Chronicle — Work Status Index
 
    Last updated: {date}
 
@@ -44,7 +44,7 @@
 
    없으면 아래 헤더로 생성한다:
    ```markdown
-   # Olympus Edicts — Design Decisions
+   # Asgard Edicts — Design Decisions
 
    (Options / Chosen / Rationale / Tradeoffs 형식으로 기록)
    ```
@@ -53,7 +53,7 @@
 
    없으면 아래 형식으로 생성한다:
    ```markdown
-   # Olympus Lore — Project Context
+   # Asgard Lore — Project Context
 
    ## Project Summary
    (사용자에게 프로젝트 목적을 한 문장으로 물어본다)
@@ -65,7 +65,7 @@
    (사용할 기술 스택)
 
    ## Key File Locations
-   - CLAUDE.md: Athena 헌법
+   - CLAUDE.md: Odin 헌법
    - AGENTS.md: 에이전트 규칙서
    - artifacts/INDEX.md: 작업 상태 추적 (SSoT)
    - artifacts/handoff/: TP/RP 교환소
@@ -81,12 +81,12 @@
 5. **확인 메시지 출력**
 
    ```
-   Olympus 프로젝트 초기화 완료.
+   Asgard 프로젝트 초기화 완료.
 
    다음 단계:
    1. shared/context.md에 프로젝트 목적을 기술하세요.
    2. /plan "첫 번째 작업 설명"으로 TP-001을 만드세요.
-   3. /delegate TP-001로 Hephaestus를 소환하세요.
+   3. /delegate TP-001로 Brokkr를 소환하세요.
    ```
 
 ## Notes

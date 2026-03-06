@@ -1,5 +1,5 @@
 #!/bin/bash
-# scripts/delegate-gemini.sh — Argus(Gemini CLI) 실행 래퍼
+# scripts/delegate-gemini.sh — Heimdall(Gemini CLI) 실행 래퍼
 #
 # Usage: bash scripts/delegate-gemini.sh TP-NNN [--input image.png] [--output-dir path/]
 #
@@ -106,11 +106,11 @@ mkdir -p artifacts/logs
 # ─── 프롬프트 구성 ───
 PROMPT="다음 순서로 작업하세요:
 
-1. AGENTS.md를 읽어 Argus로서의 행동 규칙과 RP 포맷을 파악하세요.
+1. AGENTS.md를 읽어 Heimdall로서의 행동 규칙과 Saga(RP) 포맷을 파악하세요.
 2. shared/context.md를 읽어 프로젝트 맥락을 파악하세요.
 3. ${TP_FILE}을 읽고 지시사항을 정확히 수행하세요.
 4. 이미지를 생성하는 작업이라면 ${OUTPUT_DIR}/ 디렉토리에 저장하세요.
-5. 완료 후 ${RP_FILE}을 AGENTS.md의 RESULT_PACKET 형식으로 작성하세요.
+5. 완료 후 ${RP_FILE}을 AGENTS.md의 Saga 형식으로 작성하세요.
 
 RP 필수 섹션: Summary, Files Changed, Commands Executed,
 Acceptance Criteria Check (각 기준별 PASS/FAIL + 증거),
@@ -123,7 +123,7 @@ GEMINI_ARGS=(-p "$PROMPT" --yolo)
 [ -n "$INPUT_FILE" ] && GEMINI_ARGS+=(-- "$INPUT_FILE")
 
 # ─── 실행 ───
-echo -e "${CYAN}👁️ [Argus] ${TP_ID} 실행 중...${NC}"
+echo -e "${CYAN}👁️ [Heimdall] ${TP_ID} 실행 중...${NC}"
 [ -n "$INPUT_FILE" ] && echo -e "   입력 파일: ${INPUT_FILE}"
 echo -e "   출력 디렉토리: ${OUTPUT_DIR}"
 echo "$(date '+%Y-%m-%d %H:%M') [argus] START ${TP_ID}" >> "$LOG_FILE"
@@ -269,7 +269,7 @@ else
             echo ""
             echo "## Known Issues"
             echo "- Gemini CLI가 RP 파일을 직접 생성하지 못함"
-            echo "- Athena가 이 내용을 검토 후 수동으로 정리 필요"
+            echo "- Odin이 이 내용을 검토 후 수동으로 정리 필요"
         } > "$RP_FILE"
         echo -e "${YELLOW}   📄 로그 래핑으로 RP 생성: ${RP_FILE}${NC}"
     fi

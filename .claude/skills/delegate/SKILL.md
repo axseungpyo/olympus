@@ -1,17 +1,17 @@
 ---
 name: delegate
 description: >
-  Hephaestus(Codex CLI)에게 TASK_PACKET을 전달하여 코드 작업을 위임한다.
-  "delegate", "위임", "Hephaestus", "Codex에게", "구현 시작", "실행해",
+  Brokkr(Codex CLI)에게 Rune(TP)을 전달하여 코드 작업을 위임한다.
+  "delegate", "위임", "Brokkr", "Codex에게", "구현 시작", "실행해",
   "코딩 시작" 등에 트리거. Agent Target이 "codex"인 TP에 사용.
 allowed-tools: Read, Write, Bash, Glob
 ---
 
-# /delegate — Hephaestus(Codex) 실행 위임
+# /delegate — Brokkr(Codex) 실행 위임
 
 ## 역할
 
-준비된 TASK_PACKET(TP)을 Hephaestus(Codex CLI)에게 전달하고 실행을 감독한다.
+준비된 Rune(TP)을 Brokkr(Codex CLI)에게 전달하고 실행을 감독한다.
 
 ## 실행 절차
 
@@ -30,46 +30,46 @@ allowed-tools: Read, Write, Bash, Glob
 
 TP의 Complexity Hint 읽기:
 
-| Hint | Hephaestus Mode | Approval Mode |
-|------|----------------|---------------|
-| simple | Ember (Low) | auto-edit |
-| moderate | Flame (Medium) | auto-edit |
-| complex | Blaze (High) | auto-edit |
-| extreme | Inferno (Extra High) | full-auto |
+| Hint | Brokkr Mode | Approval Mode |
+|------|-------------|---------------|
+| simple | Spark (Low) | auto-edit |
+| moderate | Anvil (Medium) | auto-edit |
+| complex | Mjolnir (High) | auto-edit |
+| extreme | Ragnarok (Extra High) | full-auto |
 
 ### Step 3: INDEX.md 상태 업데이트
 
 status: `draft` -> `in-progress`, Updated: {datetime}
 
-### Step 4: Hephaestus 소환
+### Step 4: Brokkr 소환
 
 아래 Bash 명령으로 Codex CLI를 실행한다:
 
 **기본 (simple/moderate/complex):**
 ```bash
 codex exec --full-auto \
-  "Read AGENTS.md to understand your role as Hephaestus and the RP format.
+  "Read AGENTS.md to understand your role as Brokkr and the Saga(RP) format.
    Read shared/context.md for project context.
    Then read artifacts/handoff/TP-NNN.md and implement the task exactly as specified.
-   When complete, write artifacts/handoff/RP-NNN.md as a RESULT_PACKET per AGENTS.md format."
+   When complete, write artifacts/handoff/RP-NNN.md as a Saga per AGENTS.md format."
 ```
 
-**extreme (Inferno 모드):**
+**extreme (Ragnarok 모드):**
 ```bash
 codex exec --full-auto \
-  "Read AGENTS.md to understand your role as Hephaestus and the RP format.
+  "Read AGENTS.md to understand your role as Brokkr and the Saga(RP) format.
    Read shared/context.md for project context.
    Then read artifacts/handoff/TP-NNN.md and implement the task exactly as specified.
-   This is an Inferno-level task: work autonomously until complete.
-   When complete, write artifacts/handoff/RP-NNN.md as a RESULT_PACKET per AGENTS.md format."
+   This is a Ragnarok-level task: work autonomously until complete.
+   When complete, write artifacts/handoff/RP-NNN.md as a Saga per AGENTS.md format."
 ```
 
 실행 중 상태 메시지:
 ```
-Hephaestus[{Mode}] 대장간 가동: TP-NNN 실행 중...
+Brokkr[{Mode}] 니다벨리르 점화: TP-NNN 실행 중...
 ```
 
-### Step 5: RP 확인
+### Step 5: Saga(RP) 확인
 
 Codex 실행 완료 후:
 - `artifacts/handoff/RP-NNN.md` 존재 확인
@@ -79,7 +79,7 @@ Codex 실행 완료 후:
 ### Step 6: 완료 보고
 
 ```
-Hephaestus[{Mode}] 공물 도착: RP-NNN
+Brokkr[{Mode}] Saga 도착: RP-NNN
 
 검토 준비 완료. 다음: /review RP-NNN
 ```
@@ -88,13 +88,13 @@ Hephaestus[{Mode}] 공물 도착: RP-NNN
 
 **Codex 미설치:**
 ```
-Hephaestus를 찾을 수 없습니다.
+Brokkr를 찾을 수 없습니다.
 설치: npm install -g @openai/codex (또는 ChatGPT Pro 구독 확인)
 ```
 
 **TP Agent Target이 codex가 아닌 경우:**
 ```
-이 TP는 Argus(Gemini) 작업입니다.
+이 TP는 Heimdall(Gemini) 작업입니다.
 /delegate-gemini TP-NNN을 사용하세요.
 ```
 
