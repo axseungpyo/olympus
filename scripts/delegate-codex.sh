@@ -193,6 +193,8 @@ cleanup() {
     wait "$WATCHDOG_PID" 2>/dev/null || true
     # Codex 잔존 프로세스 정리
     [ -n "$CODEX_PID" ] && kill -TERM "$CODEX_PID" 2>/dev/null || true
+    # PID 파일 삭제
+    rm -f "artifacts/logs/.brokkr.pid"
 }
 trap cleanup EXIT
 
@@ -208,6 +210,7 @@ run_codex() {
 EXIT_CODE=0
 run_codex > >(tee "$LOG_PATH") 2>&1 &
 CODEX_PID=$!
+echo $CODEX_PID > "artifacts/logs/.brokkr.pid"
 wait "$CODEX_PID" || EXIT_CODE=$?
 CODEX_PID=""
 

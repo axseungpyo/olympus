@@ -1,0 +1,198 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import type { AgentState, Task, LogEntry, WSMessage, AgentName } from "../lib/types";
+import { useWebSocket } from "../lib/websocket";
+import Header from "../components/Header";
+import AgentCard from "../components/AgentCard";
+import Chronicle from "../components/Chronicle";
+import LiveLog from "../components/LiveLog";
+import DocViewer from "../components/DocViewer";
+import TerminalPanel from "../components/TerminalPanel";
+import SkillsPanel from "../components/SkillsPanel";
+
+const MAX_LOGS = 500;
+
+const WS_BASE =
+  typeof window !== "undefined"
+    ? `ws://${window.location.hostname}:7777`
+    : "ws://localhost:7777";
+
+const defaultAgents: AgentState[] = [
+  { name: "odin", displayName: "Odin", status: "idle", currentTP: null, mode: null, startedAt: null, pid: null, color: "#d97757" },
+  { name: "brokkr", displayName: "Brokkr", status: "idle", currentTP: null, mode: null, startedAt: null, pid: null, color: "#10a37f" },
+  { name: "heimdall", displayName: "Heimdall", status: "idle", currentTP: null, mode: null, startedAt: null, pid: null, color: "#4285f4" },
+];
+
+type ViewMode = "overview" | "terminals" | "skills";
+
+const AGENT_TERMINALS: { name: AgentName; displayName: string; model: string; color: string }[] = [
+  { name: "odin", displayName: "Odin", model: "Claude Opus 4.6", color: "#d97757" },
+  { name: "brokkr", displayName: "Brokkr", model: "GPT-5.4", color: "#10a37f" },
+  { name: "heimdall", displayName: "Heimdall", model: "Gemini 3.1 Pro", color: "#4285f4" },
+];
+
+export default function DashboardPage() {
+  const [agents, setAgents] = useState<AgentState[]>(defaultAgents);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [viewMode, setViewMode] = useState<ViewMode>("overview");
+  const [selectedDoc, setSelectedDoc] = useState<{
+    type: "tp" | "rp";
+    id: string;
+  } | null>(null);
+
+  const { lastMessage: logMsg, isConnected: logsConnected } = useWebSocket(
+    `${WS_BASE}/ws/logs`
+  );
+  const { lastMessage: statusMsg, isConnected: statusConnected } =
+    useWebSocket(`${WS_BASE}/ws/status`);
+
+  const isConnected = logsConnected || statusConnected;
+
+  useEffect(() => {
+    fetch("/api/status")
+      .then((r) => r.json())
+      .then((data) => { if (data.agents) setAgents(data.agents); })
+      .catch(() => {});
+
+    fetch("/api/chronicle")
+      .then((r) => r.json())
+      .then((data) => { if (data.tasks) setTasks(data.tasks); })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!logMsg) return;
+    const msg = logMsg as WSMessage;
+    if (msg.type === "log") {
+      setLogs((prev) => {
+        const next = [...prev, msg.data];
+        return next.length > MAX_LOGS ? next.slice(-MAX_LOGS) : next;
+      });
+    }
+  }, [logMsg]);
+
+  useEffect(() => {
+    if (!statusMsg) return;
+    const msg = statusMsg as WSMessage;
+    if (msg.type === "status") setAgents(msg.data);
+    else if (msg.type === "chronicle") setTasks(msg.data);
+  }, [statusMsg]);
+
+  const handleDocClick = useCallback(
+    (type: "tp" | "rp", id: string) => setSelectedDoc({ type, id }),
+    []
+  );
+
+  const getAgentStatus = (name: AgentName): boolean =>
+    agents.find((a) => a.name === name)?.status === "running";
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header isConnected={isConnected} projectName="Asgard" />
+
+      <main className="flex-1 px-4 sm:px-6 py-6 sm:py-10 max-w-6xl mx-auto w-full">
+        {/* Hero Banner */}
+        <div className="my-4 sm:my-5 lg:my-7">
+          <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6 lg:gap-14 items-end">
+            <div>
+              <pre className="text-zinc-300 text-[12px] lg:text-[16px] tracking-[-1px] leading-[120%] select-none whitespace-pre font-mono" aria-label="ASGARD">{`
+ █████╗ ███████╗ ██████╗  █████╗ ██████╗ ██████╗
+██╔══██╗██╔════╝██╔════╝ ██╔══██╗██╔══██╗██╔══██╗
+███████║███████╗██║  ███╗███████║██████╔╝██║  ██║
+██╔══██║╚════██║██║   ██║██╔══██║██╔══██╗██║  ██║
+██║  ██║███████║╚██████╔╝██║  ██║██║  ██║██████╔╝
+╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝`.trimStart()}</pre>
+              <p className="mt-4 text-[15px] lg:text-[19px] font-mono font-bold text-zinc-100 uppercase tracking-[0.25em]">
+                The Multi-Agent Orchestration System
+              </p>
+            </div>
+            <p className="text-lg sm:text-xl lg:text-[22px] text-zinc-500 max-w-md leading-relaxed lg:leading-[1.5] self-end mb-0.5">
+              Runes are task contracts for AI agents. Route them with a single command to orchestrate your pantheon across planning, coding, and vision workflows.
+            </p>
+          </div>
+        </div>
+
+        {/* View Tabs */}
+        <div className="flex items-center gap-1 border-b border-zinc-800/60 mb-8">
+          {(["overview", "terminals", "skills"] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setViewMode(mode)}
+              className={`px-3 py-2 text-[13px] font-mono border-b-2 transition-colors ${
+                viewMode === mode
+                  ? "border-zinc-300 text-zinc-200"
+                  : "border-transparent text-zinc-600 hover:text-zinc-400"
+              }`}
+            >
+              {mode}
+            </button>
+          ))}
+        </div>
+
+        {viewMode === "skills" ? (
+          <SkillsPanel />
+        ) : viewMode === "overview" ? (
+          <div className="space-y-10">
+            <section>
+              <h2 className="text-[13px] font-mono font-medium text-zinc-500 uppercase tracking-[0.15em] mb-4">Agents</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {agents.map((agent) => (
+                  <AgentCard key={agent.name} agent={agent} />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <Chronicle tasks={tasks} onDocClick={handleDocClick} />
+                <LiveLog logs={logs} />
+              </div>
+            </section>
+          </div>
+        ) : (
+          <div className="space-y-10">
+            <section>
+              <h2 className="text-[13px] font-mono font-medium text-zinc-500 uppercase tracking-[0.15em] mb-4">Agents</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {agents.map((agent) => (
+                  <AgentCard key={agent.name} agent={agent} />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-[13px] font-mono font-medium text-zinc-500 uppercase tracking-[0.15em] mb-4">Terminals</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                {AGENT_TERMINALS.map((t) => (
+                  <TerminalPanel
+                    key={t.name}
+                    agent={t.name}
+                    displayName={t.displayName}
+                    model={t.model}
+                    logs={logs}
+                    isRunning={getAgentStatus(t.name)}
+                    accentColor={t.color}
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
+      </main>
+
+      <footer className="border-t border-zinc-800/40 px-6 py-4 text-center mt-10">
+        <span className="text-[13px] text-zinc-700 font-mono tracking-wide">yggdrasil v0.1.0</span>
+      </footer>
+
+      {selectedDoc && (
+        <DocViewer
+          type={selectedDoc.type}
+          id={selectedDoc.id}
+          onClose={() => setSelectedDoc(null)}
+        />
+      )}
+    </div>
+  );
+}

@@ -191,6 +191,7 @@ ASGARD_GITHUB_REPO="asgard"
 ASGARD_GITHUB_BRANCH="main"
 
 ASGARD_HOME="$HOME/.asgard"
+ASGARD_PROJECT_DIR="$(pwd)"
 BOLD='\033[1m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
@@ -210,6 +211,7 @@ usage() {
     echo "  new .         현재 디렉토리에 Asgard 구조 추가"
     echo "  update        Skills를 GitHub 최신 버전으로 업데이트"
     echo "  doctor        설치 상태 진단"
+    echo "  dashboard     Yggdrasil 대시보드 실행 (별칭: dash)"
 }
 
 cmd_new() {
@@ -410,10 +412,31 @@ cmd_doctor() {
     $ok && echo -e "${GREEN}모든 구성 요소 정상.${NC}" || echo -e "${YELLOW}일부 구성 요소 누락. install.sh를 다시 실행하세요.${NC}"
 }
 
+cmd_dashboard() {
+    if [ ! -d "$ASGARD_PROJECT_DIR/src/yggdrasil" ]; then
+        echo "❌ Yggdrasil not found. src/yggdrasil/ 디렉토리가 필요합니다."
+        return 1
+    fi
+    echo "🌳 Yggdrasil 대시보드 시작..."
+    cd "$ASGARD_PROJECT_DIR/src/yggdrasil"
+    if [ ! -d "node_modules" ]; then
+        echo "📦 의존성 설치 중..."
+        npm install
+    fi
+    npm run dev &
+    local server_pid=$!
+    sleep 3
+    echo "🌳 Yggdrasil 준비 완료: http://localhost:7777"
+    open "http://localhost:7777" 2>/dev/null || xdg-open "http://localhost:7777" 2>/dev/null || true
+    echo "종료하려면 Ctrl+C"
+    wait $server_pid
+}
+
 case "${1:-}" in
     new)    cmd_new "${2:-}" ;;
     update) cmd_update ;;
     doctor) cmd_doctor ;;
+    dashboard|dash) cmd_dashboard ;;
     *)      usage ;;
 esac
 ASGARD_CLI

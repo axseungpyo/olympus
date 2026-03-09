@@ -10,6 +10,10 @@ artifacts/logs/
 artifacts/research/
 shared/context.md
 src/
+!src/yggdrasil/
+src/yggdrasil/node_modules/
+src/yggdrasil/.next/
+src/yggdrasil/dashboard/.next/
 
 # artifacts 구조 파일은 포함 (INDEX.md, DECISIONS.md 등)
 !artifacts/INDEX.md

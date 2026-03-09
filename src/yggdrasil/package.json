@@ -1,0 +1,31 @@
+{
+  "name": "@asgard/yggdrasil",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Yggdrasil — Asgard Agent Monitoring Dashboard",
+  "scripts": {
+    "dev": "tsx server/index.ts",
+    "build": "next build",
+    "start": "NODE_ENV=production tsx server/index.ts"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.0",
+    "express": "^5.1.0",
+    "next": "^15.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.7",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.5.0",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^4.1.7",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

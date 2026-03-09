@@ -3,7 +3,28 @@
 이 프로젝트의 주요 변경사항을 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)
 
-## [Unreleased]
+## [0.2.0] - 2026-03-09
+
+### Added
+- **Yggdrasil 대시보드** — 에이전트 실시간 모니터링 시스템
+  - Next.js 15 + React 19 + Tailwind CSS 4 프론트엔드
+  - Express 5 + WebSocket 백엔드 (실시간 로그/상태 스트리밍)
+  - Chokidar 기반 파일 감시 (INDEX.md, 로그, PID 파일)
+  - Overview 탭: 에이전트 상태 카드, Chronicle, 실시간 로그
+  - Terminals 탭: 에이전트별 터미널 뷰 (로그 분리)
+  - Skills 탭: 12개 내장 Skill 카탈로그 (카테고리 필터, 상세 정보)
+  - DocViewer: TP/RP 마크다운 슬라이드 패널 뷰어
+  - WebSocket 자동 재연결 (3초 간격)
+- `scripts/demo-simulator.sh` — 대시보드 데모용 시뮬레이터
+- `artifacts/plans/PROJECT-REVIEW.md` — v0.1.0 프로젝트 종합 검토 보고서
+- `asgard dashboard` CLI 명령어 — Yggdrasil 대시보드 실행
+
+### Changed
+- `.gitignore` 업데이트: `src/yggdrasil/` 대시보드 코드 추적 포함
+- README.md 전면 개편: Yggdrasil 대시보드 섹션 추가, Skills 카테고리별 정리
+- `install.sh` 업데이트
+
+## [0.1.1] - 2026-03-06
 
 ### Added
 - `/retry` Skill — 실패한(blocked) TP 재실행 지원

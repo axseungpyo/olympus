@@ -206,6 +206,8 @@ cleanup() {
     wait "$WATCHDOG_PID" 2>/dev/null || true
     # Gemini 잔존 프로세스 정리
     [ -n "$GEMINI_PID" ] && kill -TERM "$GEMINI_PID" 2>/dev/null || true
+    # PID 파일 삭제
+    rm -f "artifacts/logs/.heimdall.pid"
 }
 trap cleanup EXIT
 
@@ -221,6 +223,7 @@ run_gemini() {
 EXIT_CODE=0
 run_gemini > >(tee "$LOG_PATH") 2>&1 &
 GEMINI_PID=$!
+echo $GEMINI_PID > "artifacts/logs/.heimdall.pid"
 wait "$GEMINI_PID" || EXIT_CODE=$?
 GEMINI_PID=""
 

@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #09090b;
+  --color-bg-secondary: #111113;
+  --color-bg-tertiary: #1a1a1e;
+  --color-bg-elevated: #27272a;
+  --color-border: #27272a;
+
+  --color-odin: #d97757;
+  --color-brokkr: #10a37f;
+  --color-heimdall: #4285f4;
+
+  --color-status-idle: #a1a1aa;
+  --color-status-running: #a78bfa;
+  --color-status-blocked: #ff6b6b;
+  --color-status-done: #a3e635;
+  --color-status-review: #f0abfc;
+  --color-status-draft: #71717a;
+
+  --color-link: #67e8f9;
+  --color-warn: #fbbf24;
+  --color-error: #ff6b6b;
+}
+
+body {
+  background-color: #09090b;
+  color: #e4e4e7;
+  font-family: "Geist", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-mono {
+  font-family: "Geist Mono", "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-slide-in {
+  animation: slide-in-right 0.15s ease-out;
+}
+
+* {
+  scrollbar-color: #27272a transparent;
+}
+
+::selection {
+  background-color: rgba(167, 139, 250, 0.15);
+}
