@@ -3,6 +3,14 @@
 이 프로젝트의 주요 변경사항을 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)
 
+## [0.2.5] - 2026-03-09
+
+### Added
+- **Skill 실행 UI** — 대시보드에서 직접 status/validate Skill 트리거
+  - `POST /api/skill/execute` 엔드포인트 (화이트리스트 기반 보안)
+  - SkillsPanel Run 버튼 + args 입력 + 결과 표시
+  - QuickActions 컴포넌트 (Overview 탭 상단, Check Status / Validate All TPs)
+
 ## [0.2.4] - 2026-03-09
 
 ### Added

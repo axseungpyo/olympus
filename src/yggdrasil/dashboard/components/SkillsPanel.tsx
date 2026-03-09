@@ -17,6 +17,11 @@ interface Skill {
   note?: string;
 }
 
+interface SkillExecutionResponse {
+  error?: string;
+  [key: string]: unknown;
+}
+
 const SKILLS: Skill[] = [
   {
     name: "plan",
@@ -149,6 +154,8 @@ const SKILLS: Skill[] = [
   },
 ];
 
+const RUNNABLE_SKILLS = new Set(["status", "validate"]);
+
 const CATEGORIES: { key: Category; label: string; count?: number }[] = [
   { key: "all", label: "All" },
   { key: "planning", label: "Planning" },
@@ -167,10 +174,44 @@ const categoryColors: Record<Exclude<Category, "all">, string> = {
 export default function SkillsPanel() {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [argsBySkill, setArgsBySkill] = useState<Record<string, string>>({});
+  const [resultBySkill, setResultBySkill] = useState<Record<string, SkillExecutionResponse>>({});
+  const [errorBySkill, setErrorBySkill] = useState<Record<string, string>>({});
+  const [executingSkill, setExecutingSkill] = useState<string | null>(null);
 
   const filtered = activeCategory === "all"
     ? SKILLS
     : SKILLS.filter((s) => s.category === activeCategory);
+
+  async function runSkill(skillName: string) {
+    setExecutingSkill(skillName);
+    setErrorBySkill((prev) => ({ ...prev, [skillName]: "" }));
+
+    try {
+      const response = await fetch("/api/skill/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          skill: skillName,
+          args: argsBySkill[skillName] ?? "",
+        }),
+      });
+
+      const data = await response.json() as SkillExecutionResponse;
+      if (!response.ok) {
+        throw new Error(data.error || "Skill execution failed");
+      }
+
+      setResultBySkill((prev) => ({ ...prev, [skillName]: data }));
+    } catch (err: unknown) {
+      setErrorBySkill((prev) => ({
+        ...prev,
+        [skillName]: err instanceof Error ? err.message : "Skill execution failed",
+      }));
+    } finally {
+      setExecutingSkill(null);
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -213,37 +254,58 @@ export default function SkillsPanel() {
           {filtered.map((skill, i) => {
             const catColor = categoryColors[skill.category];
             const isOpen = expanded === skill.name;
+            const canRun = RUNNABLE_SKILLS.has(skill.name);
+            const isRunning = executingSkill === skill.name;
+            const result = resultBySkill[skill.name];
+            const error = errorBySkill[skill.name];
 
             return (
               <div key={skill.name} className="border-b border-zinc-800/40 last:border-0">
                 {/* Main row */}
-                <button
-                  onClick={() => setExpanded(isOpen ? null : skill.name)}
-                  className="w-full grid grid-cols-[2rem_7rem_1fr_6rem_1fr] gap-4 px-4 py-3 hover:bg-zinc-800/30 transition-colors text-left items-center"
-                >
-                  <span className="text-[12px] text-zinc-700 font-mono">{i + 1}</span>
+                <div className="flex items-stretch gap-3 px-4 py-3 hover:bg-zinc-800/30 transition-colors">
+                  <button
+                    onClick={() => setExpanded(isOpen ? null : skill.name)}
+                    className="flex-1 grid grid-cols-[2rem_7rem_1fr_6rem_1fr] gap-4 text-left items-center"
+                  >
+                    <span className="text-[12px] text-zinc-700 font-mono">{i + 1}</span>
 
-                  <span className="font-mono text-[13px] font-medium" style={{ color: catColor }}>
-                    {skill.cmd}
-                  </span>
+                    <span className="font-mono text-[13px] font-medium" style={{ color: catColor }}>
+                      {skill.cmd}
+                    </span>
 
-                  <span className="text-[13px] text-zinc-300 truncate">{skill.description}</span>
+                    <span className="text-[13px] text-zinc-300 truncate">{skill.description}</span>
 
-                  <span className="text-[12px] font-mono" style={{ color: skill.agentColor }}>
-                    {skill.agentLabel}
-                  </span>
+                    <span className="text-[12px] font-mono" style={{ color: skill.agentColor }}>
+                      {skill.agentLabel}
+                    </span>
 
-                  <div className="flex items-center gap-1 flex-wrap">
-                    {skill.tools.map((t) => (
-                      <span
-                        key={t}
-                        className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800/60 text-zinc-500"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </button>
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {skill.tools.map((t) => (
+                        <span
+                          key={t}
+                          className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800/60 text-zinc-500"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (!canRun) return;
+                      setExpanded(skill.name);
+                    }}
+                    disabled={!canRun}
+                    className={`shrink-0 self-center h-8 px-3 rounded border text-[11px] font-mono transition-colors ${
+                      canRun
+                        ? "border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10"
+                        : "border-zinc-800 text-zinc-700 cursor-not-allowed"
+                    }`}
+                  >
+                    Run
+                  </button>
+                </div>
 
                 {/* Expanded detail */}
                 {isOpen && (
@@ -272,6 +334,54 @@ export default function SkillsPanel() {
                           {skill.category}
                         </span>
                       </div>
+
+                      {canRun && (
+                        <div className="pt-3 mt-3 border-t border-zinc-800/50 space-y-3">
+                          <div className="flex items-start gap-3">
+                            <span className="text-[11px] font-mono text-zinc-600 uppercase tracking-wider w-16 shrink-0 pt-2">Args</span>
+                            <div className="flex-1 space-y-2">
+                              <input
+                                value={argsBySkill[skill.name] ?? ""}
+                                onChange={(e) => setArgsBySkill((prev) => ({
+                                  ...prev,
+                                  [skill.name]: e.target.value,
+                                }))}
+                                placeholder={skill.name === "validate" ? "Optional: TP-008" : "Optional arguments"}
+                                className="w-full rounded border border-zinc-800 bg-zinc-950 px-3 py-2 text-[12px] font-mono text-zinc-200 outline-none focus:border-zinc-600"
+                              />
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => runSkill(skill.name)}
+                                  disabled={isRunning}
+                                  className="h-8 px-3 rounded border border-emerald-500/40 text-[11px] font-mono text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50 disabled:cursor-wait"
+                                >
+                                  {isRunning ? "Running..." : "Run"}
+                                </button>
+                                <span className="text-[11px] text-zinc-600">
+                                  {skill.name === "validate" ? "빈 값이면 모든 TP를 검사합니다." : "status는 args를 무시합니다."}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {error && (
+                            <div className="rounded border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] font-mono text-red-300">
+                              {error}
+                            </div>
+                          )}
+
+                          {result && (
+                            <div className="rounded border border-zinc-800 bg-zinc-950/80 p-3">
+                              <div className="mb-2 text-[11px] font-mono uppercase tracking-wider text-zinc-600">
+                                Result
+                              </div>
+                              <pre className="overflow-x-auto whitespace-pre-wrap break-words text-[11px] leading-5 text-cyan-200 font-mono">
+                                {JSON.stringify(result, null, 2)}
+                              </pre>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

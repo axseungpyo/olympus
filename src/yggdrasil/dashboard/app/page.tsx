@@ -13,6 +13,7 @@ import TerminalPanel from "../components/TerminalPanel";
 import SkillsPanel from "../components/SkillsPanel";
 import FlowView from "../components/FlowView";
 import StatsPanel from "../components/StatsPanel";
+import QuickActions from "../components/QuickActions";
 
 const WS_BASE = getWsBase();
 
@@ -175,6 +176,8 @@ export default function DashboardPage() {
           </section>
         ) : viewMode === "overview" ? (
           <div className="space-y-10">
+            <QuickActions />
+
             <section>
               <h2 className="text-[13px] font-mono font-medium text-zinc-500 uppercase tracking-[0.15em] mb-4">Agents</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -226,7 +229,7 @@ export default function DashboardPage() {
       </main>
 
       <footer className="border-t border-zinc-800/40 px-6 py-4 text-center mt-10">
-        <span className="text-[13px] text-zinc-700 font-mono tracking-wide">yggdrasil v0.2.3</span>
+        <span className="text-[13px] text-zinc-700 font-mono tracking-wide">yggdrasil v0.2.5</span>
       </footer>
 
       {selectedDoc && (
