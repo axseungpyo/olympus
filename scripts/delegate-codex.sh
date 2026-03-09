@@ -262,6 +262,7 @@ if [ "$EXIT_CODE" -eq 124 ]; then
 elif [ "$EXIT_CODE" -ne 0 ] && [ "$EXIT_CODE" -ne 143 ]; then
     # 143 = SIGTERM (watchdog에 의한 종료)
     echo -e "${RED}Error: ${TP_ID} Codex execution failed (exit: ${EXIT_CODE})${NC}"
+    echo "Brokkr failed. Run \`bash scripts/rollback.sh ${TP_ID}\` to revert changes."
     echo "$(date '+%Y-%m-%d %H:%M') [brokkr] FAILED ${TP_ID} (exit: ${EXIT_CODE}, ${DURATION}s)" >> "$LOG_FILE"
     exit 1
 fi
@@ -301,4 +302,8 @@ else
         echo -e "${YELLOW}   RP wrapped from log: ${RP_FILE}${NC}"
     fi
     echo "$(date '+%Y-%m-%d %H:%M') [brokkr] DONE-FALLBACK ${TP_ID} -> ${RP_ID} (${DURATION}s)" >> "$LOG_FILE"
+fi
+
+if grep -qi "rejected" "$RP_FILE" 2>/dev/null; then
+    echo "Brokkr failed. Run \`bash scripts/rollback.sh ${TP_ID}\` to revert changes."
 fi

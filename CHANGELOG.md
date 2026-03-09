@@ -3,6 +3,14 @@
 이 프로젝트의 주요 변경사항을 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)
 
+## [0.2.7] - 2026-03-09
+
+### Added
+- **롤백 메커니즘** — TP 실패 시 git revert 기반 자동 롤백
+  - `scripts/rollback.sh` — TP 커밋 검색, `--dry-run`, 역순 revert, rollback.log 기록
+  - `/rollback` Skill — Odin CLI에서 직접 호출 가능
+  - delegate-codex.sh에 blocked 종료 시 롤백 안내 메시지 추가
+
 ## [0.2.6] - 2026-03-09
 
 ### Added
