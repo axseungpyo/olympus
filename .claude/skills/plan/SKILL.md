@@ -34,6 +34,14 @@ allowed-tools: Read, Write, Glob
 | 이미지 분석, 생성, OCR, 리서치 | gemini |
 | 스크린샷 -> 코드 구현 | chain:gemini->codex |
 
+**Priority 결정:**
+| 긴급도 | Priority | 설명 |
+|--------|----------|------|
+| 즉시 처리 | P0 | 서비스 장애, 보안 취약점 |
+| 이번 사이클 | P1 | 핵심 기능, 블로커 해소 |
+| 다음 사이클 | P2 | 개선, 최적화, UX 향상 |
+| 백로그 | P3 | 실험, 탐색, nice-to-have |
+
 **Complexity Hint 결정 (Codex만):**
 | 작업 규모 | Hint | Brokkr Mode |
 |---------|------|------------|
@@ -47,6 +55,7 @@ allowed-tools: Read, Write, Glob
 `artifacts/handoff/TP-NNN.md`를 AGENTS.md의 Rune 형식에 따라 작성한다.
 
 작성 원칙:
+- **Priority: P0~P3** 필드를 Objective 아래에 포함.
 - Objective는 정확히 한 문장. 동사로 시작.
 - Scope In/Out을 구체적으로 명시. 모호함 금지.
 - Acceptance Criteria는 테스트 가능한 형태로. (예: "npm test 전체 PASS")

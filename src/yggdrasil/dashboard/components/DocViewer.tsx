@@ -55,7 +55,7 @@ export default function DocViewer({ type, id, onClose }: DocViewerProps) {
     <>
       <div className="fixed inset-0 bg-black/60 z-40" onClick={onClose} />
 
-      <div className={`fixed right-0 top-0 h-full ${compareMode ? "w-[900px]" : "w-[520px]"} bg-bg-secondary border-l border-zinc-800 z-50 animate-slide-in flex flex-col transition-all`}>
+      <div className={`fixed right-0 top-0 h-full ${compareMode ? "w-full sm:w-[900px]" : "w-full sm:w-[520px]"} bg-bg-secondary border-l border-zinc-800 z-50 animate-slide-in flex flex-col transition-all`}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
           <div className="flex items-center gap-3">
             <span className="font-mono text-sm text-zinc-300">

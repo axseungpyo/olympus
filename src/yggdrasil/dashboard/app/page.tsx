@@ -120,7 +120,8 @@ export default function DashboardPage() {
         <div className="my-4 sm:my-5 lg:my-7">
           <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6 lg:gap-14 items-end">
             <div>
-              <pre className="text-zinc-300 text-[12px] lg:text-[16px] tracking-[-1px] leading-[120%] select-none whitespace-pre font-mono" aria-label="ASGARD">{`
+              <h1 className="sm:hidden text-2xl font-mono font-bold text-zinc-200 tracking-[0.2em]">ASGARD</h1>
+              <pre className="hidden sm:block text-zinc-300 text-[12px] lg:text-[16px] tracking-[-1px] leading-[120%] select-none whitespace-pre font-mono" aria-label="ASGARD">{`
  █████╗ ███████╗ ██████╗  █████╗ ██████╗ ██████╗
 ██╔══██╗██╔════╝██╔════╝ ██╔══██╗██╔══██╗██╔══██╗
 ███████║███████╗██║  ███╗███████║██████╔╝██║  ██║
