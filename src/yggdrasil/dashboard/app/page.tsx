@@ -11,6 +11,8 @@ import LiveLog from "../components/LiveLog";
 import DocViewer from "../components/DocViewer";
 import TerminalPanel from "../components/TerminalPanel";
 import SkillsPanel from "../components/SkillsPanel";
+import FlowView from "../components/FlowView";
+import StatsPanel from "../components/StatsPanel";
 
 const WS_BASE = getWsBase();
 
@@ -25,7 +27,7 @@ const defaultAgents: AgentState[] = AGENT_NAMES.map((name) => ({
   color: AGENT_CONFIG[name].color,
 }));
 
-type ViewMode = "overview" | "terminals" | "skills";
+type ViewMode = "overview" | "terminals" | "flow" | "stats" | "skills";
 
 export default function DashboardPage() {
   const [agents, setAgents] = useState<AgentState[]>(defaultAgents);
@@ -140,7 +142,7 @@ export default function DashboardPage() {
 
         {/* View Tabs */}
         <div className="flex items-center gap-1 border-b border-zinc-800/60 mb-8">
-          {(["overview", "terminals", "skills"] as const).map((mode) => (
+          {(["overview", "terminals", "flow", "stats", "skills"] as const).map((mode) => (
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
@@ -157,6 +159,20 @@ export default function DashboardPage() {
 
         {viewMode === "skills" ? (
           <SkillsPanel />
+        ) : viewMode === "flow" ? (
+          <section>
+            <h2 className="text-[13px] font-mono font-medium text-zinc-500 uppercase tracking-[0.15em] mb-4">
+              Flow
+            </h2>
+            <FlowView tasks={tasks} />
+          </section>
+        ) : viewMode === "stats" ? (
+          <section>
+            <h2 className="text-[13px] font-mono font-medium text-zinc-500 uppercase tracking-[0.15em] mb-4">
+              Stats
+            </h2>
+            <StatsPanel tasks={tasks} />
+          </section>
         ) : viewMode === "overview" ? (
           <div className="space-y-10">
             <section>

@@ -13,6 +13,9 @@
 
 ### Changed
 - `server/` 내 `console.log/warn/error` 직접 호출 전부 제거 → Pino logger 사용
+- **FlowView** — TP→Agent→RP 3단계 파이프라인 시각화 (CSS/SVG, 상태 색상)
+- **StatsPanel** — 태스크 통계 대시보드 (완료율, 에이전트별/상태별 분포 바 차트)
+- page.tsx에 `flow`, `stats` 탭 추가 (총 5개 탭)
 
 ## [0.2.3] - 2026-03-09
 

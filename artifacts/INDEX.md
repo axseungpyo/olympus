@@ -7,6 +7,7 @@ Last updated: 2026-03-09
 | ID | Title | Agent | Status | Created | Updated |
 |----|-------|-------|--------|---------|---------|
 | TP-006 | Yggdrasil 구조화된 로깅 — Pino 도입 | codex | done | 2026-03-09 | 2026-03-09 |
+| TP-007 | 실행 흐름 시각화 + 통계 대시보드 | codex | done | 2026-03-09 | 2026-03-09 |
 
 ## Completed Tasks
 
@@ -18,4 +19,4 @@ Last updated: 2026-03-09
 | TP-004 | 랜딩 페이지 스크린샷 분석 및 UI 클론 | gemini | 2026-03-09 |
 | TP-005 | API 문서 자동 생성 (Swagger/OpenAPI) | codex | 2026-03-09 |
 
-## Next TP Number: TP-007
+## Next TP Number: TP-008

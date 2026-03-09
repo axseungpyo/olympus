@@ -160,11 +160,11 @@ Asgard는 Claude Code(Odin)를 Brain Agent로, Codex CLI(Brokkr)와 Gemini CLI(H
 | P1 | ESC 키보드 핸들러 | DocViewer에 ESC 키 닫기 추가 | 0.5시간 | **v0.2.1 완료** |
 | P1 | 태스크 검색/필터 | Chronicle 검색 + 상태 필터 | 1일 | **v0.2.2 완료** |
 | P1 | 알림 시스템 | 에이전트 완료/실패 시 브라우저 Notification | 0.5일 | **v0.2.2 완료** |
-| P2 | 실행 흐름 시각화 | TP → Agent → RP 파이프라인 시각도 | 2일 | 미진행 |
+| P2 | 실행 흐름 시각화 | FlowView — TP→Agent→RP 파이프라인 시각화 | 2일 | **v0.2.4 완료** |
 | P2 | Skill 실행 UI | 대시보드에서 직접 /plan, /delegate 트리거 | 3일 | 미진행 |
 | P2 | 비교 뷰어 | DocViewer에 TP↔RP side-by-side 비교 모드 추가 | 1일 | **v0.2.3 완료** |
 | P3 | 모바일 반응형 | ASCII art 모바일 숨김, DocViewer 전체폭 | 2일 | **v0.2.3 완료** |
-| P3 | 통계 대시보드 | 태스크 완료율, 평균 소요시간, 에이전트별 성과 | 2일 | 미진행 |
+| P3 | 통계 대시보드 | StatsPanel — 완료율, 에이전트별/상태별 분포 | 2일 | **v0.2.4 완료** |
 
 ### Phase 4: 프로토콜 확장 (Protocol v2)
 
