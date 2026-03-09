@@ -3,6 +3,16 @@
 이 프로젝트의 주요 변경사항을 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)
 
+## [0.2.6] - 2026-03-09
+
+### Added
+- **TP 의존성 그래프** — Rune(TP) 간 depends-on 필드 + DAG 기반 실행 순서
+  - `server/dependency.ts` — parseDependencies, buildDependencyGraph, getExecutionOrder, detectCycle
+  - `GET /api/dependency-graph` 엔드포인트 (노드, 실행 순서, 순환 감지)
+  - `DependencyView.tsx` — CSS/SVG 기반 DAG 시각화 (Flow 탭 하위)
+  - validate skill에 순환 참조 감지 연동
+  - 단위 테스트 6개 추가 (총 26개)
+
 ## [0.2.5] - 2026-03-09
 
 ### Added

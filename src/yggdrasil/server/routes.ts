@@ -4,6 +4,13 @@ import fs from "fs/promises";
 import { parseIndex, parseDocument } from "./parser";
 import { getAgentStates } from "./agents";
 import { createLogger } from "./logger";
+import {
+  buildDependencyGraph,
+  detectCycle,
+  getExecutionOrder,
+  parseDependencies,
+  type TPMeta,
+} from "./dependency";
 
 const ALLOWED_SKILLS = ["status", "validate"] as const;
 type AllowedSkill = (typeof ALLOWED_SKILLS)[number];
@@ -18,6 +25,19 @@ interface ValidationResult {
   file: string;
   valid: boolean;
   checks: ValidationCheck[];
+}
+
+interface DependencyNodeResponse {
+  id: string;
+  dependsOn: string[];
+  status: string;
+}
+
+interface DependencyGraphResponse {
+  nodes: DependencyNodeResponse[];
+  executionOrder: string[][];
+  hasCycle: boolean;
+  cycle: string[] | null;
 }
 
 export function createRouter(asgardRoot: string): Router {
@@ -65,6 +85,78 @@ export function createRouter(asgardRoot: string): Router {
     ];
   }
 
+  function readTaskStatusMap(indexContent: string): Map<string, TPMeta["status"]> {
+    const statuses = new Map<string, TPMeta["status"]>();
+
+    for (const task of parseIndex(indexContent)) {
+      statuses.set(task.id, task.status);
+    }
+
+    const completedSection = indexContent.match(/##\s+Completed Tasks([\s\S]*)$/i)?.[1] ?? "";
+    for (const line of completedSection.split("\n")) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("|")) continue;
+
+      const cells = trimmed
+        .split("|")
+        .map((cell) => cell.trim())
+        .filter(Boolean);
+
+      if (cells.length >= 4 && /^TP-\d{3}$/.test(cells[0])) {
+        statuses.set(cells[0], "done");
+      }
+    }
+
+    return statuses;
+  }
+
+  async function readTpDependencyState(): Promise<{
+    tpMeta: TPMeta[];
+    response: DependencyGraphResponse;
+  }> {
+    const handoffDir = path.join(artifactsDir, "handoff");
+    const [entries, indexContent] = await Promise.all([
+      fs.readdir(handoffDir),
+      readIndexFile(),
+    ]);
+
+    const tpFiles = entries
+      .filter((entry) => /^TP-\d{3}\.md$/.test(entry))
+      .sort((a, b) => a.localeCompare(b));
+
+    const taskStatusMap = readTaskStatusMap(indexContent);
+
+    const tpMeta = await Promise.all(
+      tpFiles.map(async (file) => {
+        const content = await fs.readFile(path.join(handoffDir, file), "utf-8");
+        const id = file.replace(/\.md$/, "");
+        return {
+          id,
+          dependsOn: parseDependencies(content),
+          status: taskStatusMap.get(id) ?? "draft",
+        } satisfies TPMeta;
+      })
+    );
+
+    const graph = buildDependencyGraph(tpMeta);
+    const cycle = detectCycle(graph);
+    const executionOrder = cycle ? [] : getExecutionOrder(graph);
+
+    return {
+      tpMeta,
+      response: {
+        nodes: tpMeta.map((tp) => ({
+          id: tp.id,
+          dependsOn: tp.dependsOn,
+          status: tp.status,
+        })),
+        executionOrder,
+        hasCycle: cycle !== null,
+        cycle,
+      },
+    };
+  }
+
   async function executeStatusSkill() {
     const content = await readIndexFile();
     const tasks = parseIndex(content);
@@ -86,17 +178,15 @@ export function createRouter(asgardRoot: string): Router {
   }
 
   async function executeValidateSkill(args: string) {
-    const handoffDir = path.join(artifactsDir, "handoff");
     const normalizedArg = normalizeTpArg(args);
 
     if (normalizedArg === "") {
       return { status: 400, body: { error: "args must be empty or a TP id like TP-008" } };
     }
 
-    const entries = await fs.readdir(handoffDir);
-    const tpFiles = entries
-      .filter((entry) => /^TP-\d{3}\.md$/.test(entry))
-      .sort((a, b) => a.localeCompare(b));
+    const handoffDir = path.join(artifactsDir, "handoff");
+    const { tpMeta, response: dependencyState } = await readTpDependencyState();
+    const tpFiles = tpMeta.map((tp) => `${tp.id}.md`);
 
     const selectedFiles = normalizedArg
       ? tpFiles.filter((file) => file === `${normalizedArg}.md`)
@@ -110,11 +200,18 @@ export function createRouter(asgardRoot: string): Router {
       selectedFiles.map(async (file) => {
         const content = await fs.readFile(path.join(handoffDir, file), "utf-8");
         const checks = buildValidationChecks(content);
+        const cycleCheck = dependencyState.hasCycle
+          ? {
+              name: "dependency-cycle",
+              pass: !dependencyState.cycle?.includes(file.replace(/\.md$/, "")),
+            }
+          : { name: "dependency-cycle", pass: true };
+
         return {
           id: file.replace(/\.md$/, ""),
           file,
-          valid: checks.every((check) => check.pass),
-          checks,
+          valid: [...checks, cycleCheck].every((check) => check.pass),
+          checks: [...checks, cycleCheck],
         };
       })
     );
@@ -127,6 +224,8 @@ export function createRouter(asgardRoot: string): Router {
         total: results.length,
         valid: results.filter((result) => result.valid).length,
         invalid: results.filter((result) => !result.valid).length,
+        hasCycle: dependencyState.hasCycle,
+        cycle: dependencyState.cycle,
         results,
       },
     };
@@ -165,6 +264,17 @@ export function createRouter(asgardRoot: string): Router {
     } catch (err: unknown) {
       log.error({ err }, "/api/chronicle error");
       res.status(500).json({ error: "Failed to get chronicle" });
+    }
+  });
+
+  // GET /api/dependency-graph
+  router.get("/api/dependency-graph", async (_req: Request, res: Response) => {
+    try {
+      const { response } = await readTpDependencyState();
+      res.json(response);
+    } catch (err: unknown) {
+      log.error({ err }, "/api/dependency-graph error");
+      res.status(500).json({ error: "Failed to get dependency graph" });
     }
   });
 

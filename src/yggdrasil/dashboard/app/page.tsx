@@ -14,6 +14,8 @@ import SkillsPanel from "../components/SkillsPanel";
 import FlowView from "../components/FlowView";
 import StatsPanel from "../components/StatsPanel";
 import QuickActions from "../components/QuickActions";
+import DependencyView from "../components/DependencyView";
+import type { DependencyGraphResponse } from "../lib/types";
 
 const WS_BASE = getWsBase();
 
@@ -35,6 +37,7 @@ export default function DashboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>("overview");
+  const [dependencyGraph, setDependencyGraph] = useState<DependencyGraphResponse | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<{
     type: "tp" | "rp";
     id: string;
@@ -58,6 +61,13 @@ export default function DashboardPage() {
       .then((r) => r.json())
       .then((data) => { if (data.tasks) setTasks(data.tasks); })
       .catch((err) => console.warn("[Dashboard] Failed to fetch chronicle:", err.message));
+
+    fetch("/api/dependency-graph")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.nodes && data.executionOrder) setDependencyGraph(data);
+      })
+      .catch((err) => console.warn("[Dashboard] Failed to fetch dependency graph:", err.message));
   }, []);
 
   useEffect(() => {
@@ -161,12 +171,21 @@ export default function DashboardPage() {
         {viewMode === "skills" ? (
           <SkillsPanel />
         ) : viewMode === "flow" ? (
-          <section>
-            <h2 className="text-[13px] font-mono font-medium text-zinc-500 uppercase tracking-[0.15em] mb-4">
-              Flow
-            </h2>
-            <FlowView tasks={tasks} />
-          </section>
+          <div className="space-y-6">
+            <section>
+              <h2 className="text-[13px] font-mono font-medium text-zinc-500 uppercase tracking-[0.15em] mb-4">
+                Flow
+              </h2>
+              <FlowView tasks={tasks} />
+            </section>
+
+            <section>
+              <h2 className="text-[13px] font-mono font-medium text-zinc-500 uppercase tracking-[0.15em] mb-4">
+                Dependency Graph
+              </h2>
+              <DependencyView graph={dependencyGraph} />
+            </section>
+          </div>
         ) : viewMode === "stats" ? (
           <section>
             <h2 className="text-[13px] font-mono font-medium text-zinc-500 uppercase tracking-[0.15em] mb-4">
@@ -229,7 +248,7 @@ export default function DashboardPage() {
       </main>
 
       <footer className="border-t border-zinc-800/40 px-6 py-4 text-center mt-10">
-        <span className="text-[13px] text-zinc-700 font-mono tracking-wide">yggdrasil v0.2.5</span>
+        <span className="text-[13px] text-zinc-700 font-mono tracking-wide">yggdrasil v0.2.6</span>
       </footer>
 
       {selectedDoc && (

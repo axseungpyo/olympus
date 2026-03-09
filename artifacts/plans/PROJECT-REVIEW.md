@@ -161,7 +161,7 @@ Asgard는 Claude Code(Odin)를 Brain Agent로, Codex CLI(Brokkr)와 Gemini CLI(H
 | P1 | 태스크 검색/필터 | Chronicle 검색 + 상태 필터 | 1일 | **v0.2.2 완료** |
 | P1 | 알림 시스템 | 에이전트 완료/실패 시 브라우저 Notification | 0.5일 | **v0.2.2 완료** |
 | P2 | 실행 흐름 시각화 | FlowView — TP→Agent→RP 파이프라인 시각화 | 2일 | **v0.2.4 완료** |
-| P2 | Skill 실행 UI | 대시보드에서 직접 /plan, /delegate 트리거 | 3일 | 미진행 |
+| P2 | Skill 실행 UI | 대시보드에서 직접 /plan, /delegate 트리거 | 3일 | **v0.2.5 완료** |
 | P2 | 비교 뷰어 | DocViewer에 TP↔RP side-by-side 비교 모드 추가 | 1일 | **v0.2.3 완료** |
 | P3 | 모바일 반응형 | ASCII art 모바일 숨김, DocViewer 전체폭 | 2일 | **v0.2.3 완료** |
 | P3 | 통계 대시보드 | StatsPanel — 완료율, 에이전트별/상태별 분포 | 2일 | **v0.2.4 완료** |
@@ -172,7 +172,7 @@ Asgard는 Claude Code(Odin)를 Brain Agent로, Codex CLI(Brokkr)와 Gemini CLI(H
 |----------|------|-------------|--------|--------|
 | P1 | TP 버저닝 | retry 시 RP-NNN-attempt{N}.md + 로그 백업으로 이력 보존 | 1일 | **v0.2.3 완료** |
 | P1 | Completed 아카이빙 | `archive-done.sh` — Active→Completed 자동 이동 + 파일 복사 | 0.5일 | **v0.2.3 완료** |
-| P2 | 의존성 그래프 | TP 간 depends-on 필드 추가, DAG 기반 실행 순서 | 3일 | 미진행 |
+| P2 | 의존성 그래프 | TP 간 depends-on 필드 추가, DAG 기반 실행 순서 | 3일 | **v0.2.6 완료** |
 | P2 | 우선순위 시스템 | /plan Skill에 P0~P3 priority 체계 도입 | 1일 | **v0.2.3 완료** |
 | P2 | 롤백 메커니즘 | 실패 시 git revert 기반 자동 롤백 | 2일 | 미진행 |
 | P3 | Loki 에이전트 | 이미지 생성 전문 에이전트 (Nano Banana API) | 3일 | 미진행 |

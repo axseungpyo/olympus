@@ -107,6 +107,11 @@ TP의 스펙 밖에서 임의로 판단하지 않는다.
 ```markdown
 # TP-NNN: {Title}
 
+## Metadata
+- Agent Target: codex
+- Complexity: moderate
+- Depends On: TP-005, TP-006
+
 ## Agent Target
 (codex | gemini | chain:gemini->codex)
 

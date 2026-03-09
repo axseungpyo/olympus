@@ -29,6 +29,19 @@ export interface Task {
   updated: string;
 }
 
+export interface DependencyGraphNode {
+  id: string;
+  dependsOn: string[];
+  status: TaskStatus;
+}
+
+export interface DependencyGraphResponse {
+  nodes: DependencyGraphNode[];
+  executionOrder: string[][];
+  hasCycle: boolean;
+  cycle: string[] | null;
+}
+
 export interface LogEntry {
   timestamp: number;
   agent: AgentName | "system";
