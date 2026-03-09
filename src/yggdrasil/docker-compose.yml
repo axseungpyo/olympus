@@ -1,0 +1,11 @@
+services:
+  yggdrasil:
+    build: .
+    ports:
+      - "7777:7777"
+    volumes:
+      - ../../artifacts:/app/../../artifacts:ro
+      - ../../shared:/app/../../shared:ro
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped

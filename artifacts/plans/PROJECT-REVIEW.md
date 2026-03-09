@@ -162,7 +162,7 @@ Asgard는 Claude Code(Odin)를 Brain Agent로, Codex CLI(Brokkr)와 Gemini CLI(H
 | P1 | 알림 시스템 | 에이전트 완료/실패 시 브라우저 Notification | 0.5일 | **v0.2.2 완료** |
 | P2 | 실행 흐름 시각화 | TP → Agent → RP 파이프라인 시각도 | 2일 | 미진행 |
 | P2 | Skill 실행 UI | 대시보드에서 직접 /plan, /delegate 트리거 | 3일 | 미진행 |
-| P2 | 비교 뷰어 | TP와 RP를 나란히 비교 표시 | 1일 | 미진행 |
+| P2 | 비교 뷰어 | DocViewer에 TP↔RP side-by-side 비교 모드 추가 | 1일 | **v0.2.3 완료** |
 | P3 | 모바일 반응형 | 태블릿/모바일 레이아웃 최적화 | 2일 | 미진행 |
 | P3 | 통계 대시보드 | 태스크 완료율, 평균 소요시간, 에이전트별 성과 | 2일 | 미진행 |
 
@@ -183,8 +183,8 @@ Asgard는 Claude Code(Odin)를 Brain Agent로, Codex CLI(Brokkr)와 Gemini CLI(H
 | Priority | Task | Description | Effort | Status |
 |----------|------|-------------|--------|--------|
 | P1 | 헬스체크 API | `GET /api/health` 엔드포인트 추가 | 0.5시간 | **v0.2.1 완료** |
-| P2 | Docker 지원 | Dockerfile + docker-compose.yml | 1일 | 미진행 |
-| P2 | CI/CD | GitHub Actions: 린트 + 테스트 + 빌드 검증 | 1일 | 미진행 |
+| P2 | Docker 지원 | Dockerfile + docker-compose.yml | 1일 | **v0.2.3 완료** |
+| P2 | CI/CD | GitHub Actions: test + build on push/PR | 1일 | **v0.2.3 완료** |
 | P2 | 구조화된 로깅 | Winston/Pino 도입, JSON 로그 포맷 | 1일 | 미진행 |
 | P3 | 원격 접속 | HTTPS + WSS + 기본 인증 | 2일 | 미진행 |
 | P3 | 메트릭 수집 | 에이전트 실행 시간, 성공률 등 수집 + 시각화 | 3일 | 미진행 |

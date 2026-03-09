@@ -13,6 +13,9 @@
 ### Changed
 - `/review` Skill이 `archive-done.sh`를 사용하도록 업데이트
 - INDEX.md: 5개 완료 태스크를 Completed 테이블로 이동
+- **DocViewer 비교 모드** — TP↔RP side-by-side 비교 (토글 버튼)
+- **GitHub Actions CI** — push/PR 시 test + build 자동 실행
+- **Docker 지원** — Dockerfile + docker-compose.yml (Yggdrasil 컨테이너화)
 
 ## [0.2.2] - 2026-03-09
 
