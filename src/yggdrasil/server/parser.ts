@@ -1,5 +1,8 @@
 import fs from "fs/promises";
 import type { Task, TaskStatus } from "../dashboard/lib/types";
+import { createLogger } from "./logger";
+
+const log = createLogger({ component: "Parser" });
 
 export function parseIndex(content: string): Task[] {
   const tasks: Task[] = [];
@@ -66,7 +69,7 @@ export async function parseDocument(
     };
   } catch (err: unknown) {
     if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-      console.error(`[Parser] Failed to read document: ${filePath}`, (err as Error).message);
+      log.error({ err, filePath }, "Failed to read document");
     }
     return { title: "Untitled", content: "" };
   }

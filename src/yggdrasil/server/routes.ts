@@ -3,10 +3,12 @@ import path from "path";
 import fs from "fs/promises";
 import { parseIndex, parseDocument } from "./parser";
 import { getAgentStates } from "./agents";
+import { createLogger } from "./logger";
 
 export function createRouter(asgardRoot: string): Router {
   const router = Router();
   const artifactsDir = path.resolve(asgardRoot, "artifacts");
+  const log = createLogger({ component: "Routes" });
 
   async function readIndexFile(): Promise<string> {
     try {
@@ -16,7 +18,7 @@ export function createRouter(asgardRoot: string): Router {
       );
     } catch (err: unknown) {
       if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-        console.error("[Routes] Failed to read INDEX.md", (err as Error).message);
+        log.error({ err }, "Failed to read INDEX.md");
       }
       return "";
     }
@@ -41,7 +43,7 @@ export function createRouter(asgardRoot: string): Router {
         completedTasks: tasks.filter((t) => t.status === "done").length,
       });
     } catch (err: unknown) {
-      console.error("[Routes] /api/status error", (err as Error).message);
+      log.error({ err }, "/api/status error");
       res.status(500).json({ error: "Failed to get status" });
     }
   });
@@ -53,7 +55,7 @@ export function createRouter(asgardRoot: string): Router {
       const tasks = parseIndex(content);
       res.json({ tasks });
     } catch (err: unknown) {
-      console.error("[Routes] /api/chronicle error", (err as Error).message);
+      log.error({ err }, "/api/chronicle error");
       res.status(500).json({ error: "Failed to get chronicle" });
     }
   });
@@ -90,7 +92,7 @@ export function createRouter(asgardRoot: string): Router {
         }
         res.json({ type, id, title: doc.title, content: doc.content });
       } catch (err: unknown) {
-        console.error(`[Routes] Document not found: ${fileName}`, (err as Error).message);
+        log.error({ err, fileName }, "Document not found");
         res.status(404).json({ error: "Document not found" });
       }
     }

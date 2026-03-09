@@ -185,7 +185,7 @@ Asgard는 Claude Code(Odin)를 Brain Agent로, Codex CLI(Brokkr)와 Gemini CLI(H
 | P1 | 헬스체크 API | `GET /api/health` 엔드포인트 추가 | 0.5시간 | **v0.2.1 완료** |
 | P2 | Docker 지원 | Dockerfile + docker-compose.yml | 1일 | **v0.2.3 완료** |
 | P2 | CI/CD | GitHub Actions: test + build on push/PR | 1일 | **v0.2.3 완료** |
-| P2 | 구조화된 로깅 | Winston/Pino 도입, JSON 로그 포맷 | 1일 | 미진행 |
+| P2 | 구조화된 로깅 | Pino 도입, JSON/pretty 로그 포맷 | 1일 | **v0.2.4 완료** |
 | P3 | 원격 접속 | HTTPS + WSS + 기본 인증 | 2일 | 미진행 |
 | P3 | 메트릭 수집 | 에이전트 실행 시간, 성공률 등 수집 + 시각화 | 3일 | 미진행 |
 

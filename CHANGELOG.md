@@ -3,6 +3,17 @@
 이 프로젝트의 주요 변경사항을 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)
 
+## [0.2.4] - 2026-03-09
+
+### Added
+- **Pino 구조화 로깅** — `server/logger.ts` 생성, 전 서버 모듈에 child logger 적용
+  - 개발: pino-pretty (컬러, 타임스탬프, PID 숨김)
+  - 프로덕션: JSON 포맷
+  - `LOG_LEVEL` 환경변수로 레벨 제어
+
+### Changed
+- `server/` 내 `console.log/warn/error` 직접 호출 전부 제거 → Pino logger 사용
+
 ## [0.2.3] - 2026-03-09
 
 ### Added

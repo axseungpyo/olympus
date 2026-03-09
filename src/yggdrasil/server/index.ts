@@ -8,11 +8,13 @@ import { AsgardWatcher } from "./watcher";
 import { parseIndex } from "./parser";
 import { getAgentStates } from "./agents";
 import fs from "fs/promises";
+import { createLogger } from "./logger";
 
 const PORT = parseInt(process.env.PORT || "7777", 10);
 const dev = process.env.NODE_ENV !== "production";
 const ASGARD_ROOT = path.resolve(process.cwd(), "../..");
 const WS_HEARTBEAT_INTERVAL = 30_000;
+const log = createLogger({ component: "YggdrasilServer" });
 
 async function main() {
   const nextApp = next({ dev, dir: "./dashboard" });
@@ -109,7 +111,7 @@ async function main() {
         }
       }
     } catch (err) {
-      console.error("[Yggdrasil] Failed to send initial logs", (err as Error).message);
+      log.error({ err }, "Failed to send initial logs");
     }
   });
 
@@ -122,7 +124,7 @@ async function main() {
         content = await fs.readFile(indexPath, "utf-8");
       } catch (err: unknown) {
         if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-          console.error("[Yggdrasil] Failed to read INDEX.md", (err as Error).message);
+          log.error({ err }, "Failed to read INDEX.md");
         }
       }
       const tasks = parseIndex(content);
@@ -132,21 +134,21 @@ async function main() {
         ws.send(JSON.stringify({ type: "chronicle", data: tasks }));
       }
     } catch (err) {
-      console.error("[Yggdrasil] Failed to send initial status", (err as Error).message);
+      log.error({ err }, "Failed to send initial status");
     }
   });
 
   await watcher.start();
 
   server.listen(PORT, () => {
-    console.log(`[Yggdrasil] Server running at http://localhost:${PORT}`);
-    console.log(`[Yggdrasil] ASGARD_ROOT: ${ASGARD_ROOT}`);
-    console.log(`[Yggdrasil] Mode: ${dev ? "development" : "production"}`);
-    console.log(`[Yggdrasil] WebSocket endpoints: /ws/logs, /ws/status`);
+    log.info({ port: PORT, url: `http://localhost:${PORT}` }, "Server running");
+    log.info({ asgardRoot: ASGARD_ROOT }, "Resolved ASGARD_ROOT");
+    log.info({ mode: dev ? "development" : "production" }, "Server mode");
+    log.info({ endpoints: ["/ws/logs", "/ws/status"] }, "WebSocket endpoints ready");
   });
 
   const shutdown = async () => {
-    console.log("\n[Yggdrasil] Shutting down...");
+    log.info("Shutting down");
     await watcher.stop();
     wssLogs.close();
     wssStatus.close();
@@ -159,6 +161,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("[Yggdrasil] Fatal error:", err);
+  log.fatal({ err }, "Fatal error");
   process.exit(1);
 });

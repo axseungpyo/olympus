@@ -2,6 +2,9 @@ import fs from "fs/promises";
 import path from "path";
 import type { AgentName, AgentState, AgentStatus, Task } from "../dashboard/lib/types";
 import { AGENT_CONFIG, AGENT_NAMES } from "../dashboard/lib/constants";
+import { createLogger } from "./logger";
+
+const log = createLogger({ component: "Agents" });
 
 async function readPidFile(
   filePath: string
@@ -16,7 +19,7 @@ async function readPidFile(
   } catch (err: unknown) {
     // ENOENT is expected (no PID file = agent not running)
     if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-      console.error(`[Agents] Failed to read PID file: ${filePath}`, (err as Error).message);
+      log.error({ err, filePath }, "Failed to read PID file");
     }
     return null;
   }

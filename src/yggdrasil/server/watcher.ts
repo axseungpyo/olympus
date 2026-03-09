@@ -5,17 +5,10 @@ import chokidar from "chokidar";
 import { parseIndex } from "./parser";
 import { getAgentStates } from "./agents";
 import type { AgentName, LogEntry } from "../dashboard/lib/types";
+import { createLogger } from "./logger";
 
 const TAIL_INITIAL_LINES = 500;
-
-function log(level: "info" | "warn" | "error", msg: string, err?: unknown): void {
-  const prefix = `[Watcher]`;
-  if (level === "error") {
-    console.error(`${prefix} ${msg}`, err instanceof Error ? err.message : err ?? "");
-  } else if (level === "warn") {
-    console.warn(`${prefix} ${msg}`);
-  }
-}
+const log = createLogger({ component: "Watcher" });
 
 export class AsgardWatcher extends EventEmitter {
   private asgardRoot: string;
@@ -58,7 +51,7 @@ export class AsgardWatcher extends EventEmitter {
     });
 
     this.watcher.on("error", (err) => {
-      log("error", "File watcher error", err);
+      log.error({ err }, "File watcher error");
     });
   }
 
@@ -79,7 +72,7 @@ export class AsgardWatcher extends EventEmitter {
       }
     } catch (err: unknown) {
       if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-        log("error", "Failed to load initial logs", err);
+        log.error({ err }, "Failed to load initial logs");
       }
     }
   }
@@ -97,7 +90,7 @@ export class AsgardWatcher extends EventEmitter {
       return lines.slice(-maxLines);
     } catch (err: unknown) {
       if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-        log("error", `Failed to tail file: ${filePath}`, err);
+        log.error({ err, filePath }, "Failed to tail file");
       }
       return [];
     }
@@ -147,7 +140,7 @@ export class AsgardWatcher extends EventEmitter {
       }
     } catch (err: unknown) {
       if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-        log("error", `Failed to read log changes: ${filePath}`, err);
+        log.error({ err, filePath }, "Failed to read log changes");
       }
     }
   }
@@ -161,7 +154,7 @@ export class AsgardWatcher extends EventEmitter {
       const agents = await getAgentStates(this.asgardRoot, tasks);
       this.emit("agent-change", { agents });
     } catch (err: unknown) {
-      log("error", "Failed to parse INDEX.md", err);
+      log.error({ err }, "Failed to parse INDEX.md");
     }
   }
 
@@ -173,14 +166,14 @@ export class AsgardWatcher extends EventEmitter {
         content = await fs.readFile(indexPath, "utf-8");
       } catch (err: unknown) {
         if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-          log("warn", "Could not read INDEX.md for agent state update");
+          log.warn({ err }, "Could not read INDEX.md for agent state update");
         }
       }
       const tasks = parseIndex(content);
       const agents = await getAgentStates(this.asgardRoot, tasks);
       this.emit("agent-change", { agents });
     } catch (err: unknown) {
-      log("error", "Failed to update agent states", err);
+      log.error({ err }, "Failed to update agent states");
     }
   }
 
@@ -231,7 +224,7 @@ export class AsgardWatcher extends EventEmitter {
       }
     } catch (err: unknown) {
       if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-        log("error", "Failed to read recent logs", err);
+        log.error({ err }, "Failed to read recent logs");
       }
     }
 
