@@ -28,6 +28,7 @@ import FlowView from "../components/FlowView";
 import StatsPanel from "../components/StatsPanel";
 import QuickActions from "../components/QuickActions";
 import DependencyView from "../components/DependencyView";
+import ApiKeysModal from "../components/ApiKeysModal";
 import type { DependencyGraphResponse } from "../lib/types";
 
 const WS_BASE = getWsBase();
@@ -54,6 +55,7 @@ export default function DashboardPage() {
   const [tokenInput, setTokenInput] = useState("");
   const [authReady, setAuthReady] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [showApiKeys, setShowApiKeys] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("overview");
   const [dependencyGraph, setDependencyGraph] = useState<DependencyGraphResponse | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<{
@@ -189,7 +191,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header isConnected={isConnected} projectName="Asgard" />
+      <Header isConnected={isConnected} projectName="Asgard" onSettingsClick={() => setShowApiKeys(true)} />
 
       <main className="flex-1 px-4 sm:px-6 py-6 sm:py-10 max-w-6xl mx-auto w-full">
         {/* Hero Banner */}
@@ -311,7 +313,7 @@ export default function DashboardPage() {
       </main>
 
       <footer className="border-t border-zinc-800/40 px-6 py-4 text-center mt-10">
-        <span className="text-[13px] text-zinc-700 font-mono tracking-wide">yggdrasil v0.2.8</span>
+        <span className="text-[13px] text-zinc-700 font-mono tracking-wide">yggdrasil v0.3.1</span>
       </footer>
 
       {selectedDoc && (
@@ -321,6 +323,8 @@ export default function DashboardPage() {
           onClose={() => setSelectedDoc(null)}
         />
       )}
+
+      {showApiKeys && <ApiKeysModal onClose={() => setShowApiKeys(false)} />}
 
       {!isAuthenticated && (
         <>

@@ -3,6 +3,14 @@
 이 프로젝트의 주요 변경사항을 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)
 
+## [0.3.1] - 2026-03-09
+
+### Added
+- **API 키 설정 모달** — 대시보드 Header 설정 아이콘으로 API 키 입력 UI 제공
+  - Loki (Image Gen), Custom API 키 입력 필드
+  - localStorage 저장 (브라우저 전용, 서버 미전송)
+  - ESC 키 닫기, 저장 피드백
+
 ## [0.3.0] - 2026-03-09
 
 ### Added
