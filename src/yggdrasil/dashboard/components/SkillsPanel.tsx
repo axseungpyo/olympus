@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { authFetch } from "../lib/auth";
 import { AGENT_CONFIG } from "../lib/constants";
 
@@ -179,6 +181,28 @@ export default function SkillsPanel() {
   const [resultBySkill, setResultBySkill] = useState<Record<string, SkillExecutionResponse>>({});
   const [errorBySkill, setErrorBySkill] = useState<Record<string, string>>({});
   const [executingSkill, setExecutingSkill] = useState<string | null>(null);
+  const [docSkill, setDocSkill] = useState<string | null>(null);
+  const [docContent, setDocContent] = useState<string | null>(null);
+  const [docLoading, setDocLoading] = useState(false);
+
+  useEffect(() => {
+    if (!docSkill) { setDocContent(null); return; }
+    setDocLoading(true);
+    authFetch(`/api/skill/${docSkill}/doc`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Not found");
+        return res.json();
+      })
+      .then((data) => { setDocContent(data.content); setDocLoading(false); })
+      .catch(() => { setDocContent("# Document not found\n\nSKILL.md가 없습니다."); setDocLoading(false); });
+  }, [docSkill]);
+
+  useEffect(() => {
+    if (!docSkill) return;
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") setDocSkill(null); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [docSkill]);
 
   const filtered = activeCategory === "all"
     ? SKILLS
@@ -293,6 +317,14 @@ export default function SkillsPanel() {
                   </button>
 
                   <button
+                    onClick={() => setDocSkill(skill.name)}
+                    className="shrink-0 self-center h-8 px-3 rounded border border-border text-[11px] font-mono text-slate-400 hover:text-slate-200 hover:border-slate-500 transition-colors"
+                    title="View SKILL.md"
+                  >
+                    Doc
+                  </button>
+
+                  <button
                     onClick={() => {
                       if (!canRun) return;
                       setExpanded(skill.name);
@@ -366,15 +398,29 @@ export default function SkillsPanel() {
                           </div>
 
                           {error && (
-                            <div className="rounded border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] font-mono text-red-300">
-                              {error}
+                            <div className="rounded border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] font-mono text-red-300 flex items-start justify-between gap-2">
+                              <span>{error}</span>
+                              <button
+                                onClick={() => setErrorBySkill((prev) => ({ ...prev, [skill.name]: "" }))}
+                                className="shrink-0 text-red-400 hover:text-red-200 transition-colors text-[14px] leading-none"
+                              >
+                                &times;
+                              </button>
                             </div>
                           )}
 
                           {result && (
                             <div className="rounded border border-border bg-bg-primary/80 p-3">
-                              <div className="mb-2 text-[11px] font-mono uppercase tracking-wider text-slate-500">
-                                Result
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500">
+                                  Result
+                                </span>
+                                <button
+                                  onClick={() => setResultBySkill((prev) => { const next = { ...prev }; delete next[skill.name]; return next; })}
+                                  className="text-slate-500 hover:text-slate-300 transition-colors text-[14px] leading-none px-1"
+                                >
+                                  &times;
+                                </button>
                               </div>
                               <pre className="overflow-x-auto whitespace-pre-wrap break-words text-[11px] leading-5 text-cyan-200 font-mono">
                                 {JSON.stringify(result, null, 2)}
@@ -395,6 +441,37 @@ export default function SkillsPanel() {
       <p className="text-[11px] text-slate-500 font-mono text-right">
         {filtered.length} skills · click row to expand
       </p>
+
+      {/* Skill Document Side Panel */}
+      {docSkill && (
+        <>
+          <div className="fixed inset-0 bg-black/60 z-40" onClick={() => setDocSkill(null)} />
+          <div className="fixed right-0 top-0 h-full w-full sm:w-[540px] bg-bg-secondary border-l border-border z-50 animate-slide-in flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <span className="font-mono text-sm text-slate-300">
+                /{docSkill} — SKILL.md
+              </span>
+              <button
+                onClick={() => setDocSkill(null)}
+                className="text-slate-400 hover:text-slate-300 transition-colors text-sm"
+              >
+                esc
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6">
+              {docLoading ? (
+                <div className="text-center py-16">
+                  <span className="text-xs text-slate-500 font-mono">loading...</span>
+                </div>
+              ) : docContent ? (
+                <div className="prose prose-invert prose-sm max-w-none prose-headings:text-slate-200 prose-headings:font-medium prose-p:text-slate-400 prose-a:text-[#67e8f9] prose-a:no-underline hover:prose-a:underline prose-code:text-[#fbbf24] prose-code:bg-bg-tertiary prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-pre:bg-bg-primary prose-pre:border prose-pre:border-border prose-td:text-slate-400 prose-th:text-slate-300 prose-hr:border-border prose-strong:text-slate-200">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{docContent}</ReactMarkdown>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

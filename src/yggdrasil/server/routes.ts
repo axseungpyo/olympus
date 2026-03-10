@@ -331,6 +331,30 @@ export function createRouter(asgardRoot: string): Router {
     }
   );
 
+  // GET /api/skill/:name/doc — Skill SKILL.md 문서 조회
+  router.get("/api/skill/:name/doc", async (req: Request, res: Response) => {
+    const { name } = req.params;
+
+    if (!/^[a-z][a-z0-9-]*$/.test(name as string)) {
+      res.status(400).json({ error: "Invalid skill name" });
+      return;
+    }
+
+    const skillPath = path.resolve(asgardRoot, ".claude", "skills", name as string, "SKILL.md");
+
+    if (!skillPath.startsWith(path.resolve(asgardRoot, ".claude", "skills"))) {
+      res.status(403).json({ error: "Access denied" });
+      return;
+    }
+
+    try {
+      const content = await fs.readFile(skillPath, "utf-8");
+      res.json({ name, content });
+    } catch {
+      res.status(404).json({ error: "Skill document not found" });
+    }
+  });
+
   // POST /api/skill/execute
   router.post("/api/skill/execute", async (req: Request, res: Response) => {
     const { skill, args = "" } = (req.body ?? {}) as {

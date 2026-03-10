@@ -19,7 +19,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="bg-bg-primary text-slate-200 min-h-screen antialiased">
+      <body className="bg-bg-primary min-h-screen antialiased">
         {children}
       </body>
     </html>

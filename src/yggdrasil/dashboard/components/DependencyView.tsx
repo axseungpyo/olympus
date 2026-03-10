@@ -142,12 +142,12 @@ export default function DependencyView({ graph }: DependencyViewProps) {
             const isReady = readyIds.has(node.id) && node.status !== "done";
 
             return (
-              <g key={node.id} transform={`translate(${position.x}, ${position.y})`}>
+              <g key={node.id} transform={`translate(${position.x}, ${position.y})`} className="dag-node">
                 <rect
                   width={NODE_WIDTH}
                   height={NODE_HEIGHT}
                   rx="16"
-                  fill="rgba(19, 23, 41, 0.94)"
+                  className="dag-node-bg"
                   stroke={isReady ? "#67e8f9" : statusColor}
                   strokeWidth={isReady ? 2 : 1.25}
                 />
@@ -159,13 +159,13 @@ export default function DependencyView({ graph }: DependencyViewProps) {
                   rx="16"
                   fill={statusColor}
                 />
-                <text x="16" y="28" fill="#94a3b8" fontSize="11" fontFamily="monospace">
+                <text x="16" y="28" className="dag-node-sub" fontSize="11" fontFamily="monospace">
                   {node.status}
                 </text>
-                <text x="16" y="52" fill="#f1f5f9" fontSize="18" fontFamily="monospace">
+                <text x="16" y="52" className="dag-node-title" fontSize="18" fontFamily="monospace">
                   {node.id}
                 </text>
-                <text x="16" y="70" fill="#94a3b8" fontSize="11" fontFamily="monospace">
+                <text x="16" y="70" className="dag-node-sub" fontSize="11" fontFamily="monospace">
                   {node.dependsOn.length === 0
                     ? "No dependencies"
                     : `Depends on ${node.dependsOn.length}`}

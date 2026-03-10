@@ -313,7 +313,7 @@ export default function DashboardPage() {
       </main>
 
       <footer className="border-t border-border/40 px-6 py-4 text-center mt-10">
-        <span className="text-[13px] text-slate-500 font-mono tracking-wide">yggdrasil v0.3.1</span>
+        <span className="text-[13px] text-slate-500 font-mono tracking-wide">yggdrasil v0.3.3</span>
       </footer>
 
       {selectedDoc && (
@@ -328,7 +328,7 @@ export default function DashboardPage() {
 
       {!isAuthenticated && (
         <>
-          <div className="fixed inset-0 z-40 bg-[#0c0f1a]/80 backdrop-blur-sm" />
+          <div className="fixed inset-0 z-40 bg-bg-primary/80 backdrop-blur-sm" />
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div className="w-full max-w-md rounded-2xl border border-border bg-bg-primary p-6 shadow-2xl">
               <div className="text-[11px] font-mono uppercase tracking-[0.25em] text-slate-400">

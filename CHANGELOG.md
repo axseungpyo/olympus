@@ -3,6 +3,17 @@
 이 프로젝트의 주요 변경사항을 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)
 
+## [0.3.3] - 2026-03-10
+
+### Added
+- **Dark/Light 모드 토글** — CSS 변수 기반 테마 전환 시스템
+  - `lib/theme.ts` — ThemeMode 타입, localStorage 저장/복원, applyTheme/toggleTheme
+  - `ThemeToggle.tsx` — 태양/달 SVG 아이콘 토글 버튼 (Header 우측)
+  - Warm Mist light 테마: 따뜻한 베이지(#edeae5) 배경, 어두운 텍스트
+  - `html.light` 셀렉터로 slate-* 텍스트/보더/버튼 일괄 반전
+  - 스크롤바, selection, 상태 색상 light 모드 대응
+  - localStorage 기반 테마 선택 영속화
+
 ## [0.3.2] - 2026-03-09
 
 ### Changed

@@ -1,5 +1,7 @@
 "use client";
 
+import ThemeToggle from "./ThemeToggle";
+
 interface HeaderProps {
   isConnected: boolean;
   projectName?: string;
@@ -18,6 +20,7 @@ export default function Header({ isConnected, projectName = "Asgard", onSettings
       </div>
 
       <div className="flex items-center gap-4 text-[13px] font-mono">
+        <ThemeToggle />
         {onSettingsClick && (
           <button
             onClick={onSettingsClick}

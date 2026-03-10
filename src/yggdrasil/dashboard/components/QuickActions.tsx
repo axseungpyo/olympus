@@ -93,15 +93,31 @@ export default function QuickActions() {
         </div>
 
         {error && (
-          <div className="rounded border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] font-mono text-red-300">
-            {error}
+          <div className="rounded border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] font-mono text-red-300 flex items-start justify-between gap-2">
+            <span>{error}</span>
+            <button
+              onClick={() => setError("")}
+              className="shrink-0 text-red-400 hover:text-red-200 transition-colors text-[14px] leading-none"
+              title="Dismiss"
+            >
+              &times;
+            </button>
           </div>
         )}
 
         {result && (
           <div className="rounded-lg border border-border bg-bg-primary/80 p-3">
-            <div className="mb-2 text-[11px] font-mono uppercase tracking-wider text-slate-500">
-              Result
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500">
+                Result
+              </span>
+              <button
+                onClick={() => setResult(null)}
+                className="text-slate-500 hover:text-slate-300 transition-colors text-[14px] leading-none px-1"
+                title="Close result"
+              >
+                &times;
+              </button>
             </div>
             <pre className="overflow-x-auto whitespace-pre-wrap break-words text-[11px] leading-5 text-cyan-200 font-mono">
               {JSON.stringify(result, null, 2)}

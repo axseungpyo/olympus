@@ -44,9 +44,10 @@ export default function TerminalPanel({
   const agentLogs = logs.filter((l) => l.agent === agent);
 
   return (
-    <div className={`bg-bg-secondary border border-border/60 rounded-lg overflow-hidden flex flex-col transition-all ${isExpanded ? "col-span-3" : ""}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60">
+    <div className={`terminal-card bg-bg-secondary border border-border/60 rounded-lg overflow-hidden flex flex-col transition-all ${isExpanded ? "col-span-3" : ""}`}>
+      {/* Header — 에이전트 컬러 왼쪽 바 + 구분선 */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60 relative">
+        <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-lg" style={{ backgroundColor: accentColor }} />
         <div className="flex items-center gap-3">
           {isRunning && (
             <span className="w-1.5 h-1.5 rounded-full animate-pulse-dot" style={{ backgroundColor: accentColor }} />
@@ -61,7 +62,7 @@ export default function TerminalPanel({
           <span className="text-[12px] text-slate-500 font-mono">{agentLogs.length}</span>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-slate-500 hover:text-slate-400 transition-colors"
+            className="text-slate-500 hover:text-slate-300 transition-colors"
           >
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
               {isExpanded ? (
@@ -74,17 +75,18 @@ export default function TerminalPanel({
         </div>
       </div>
 
-      {/* Content */}
+      {/* Content — 터미널 코드 영역 (별도 배경) */}
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className={`overflow-y-auto p-3 bg-bg-primary ${isExpanded ? "max-h-[700px]" : "max-h-[500px]"}`}
+        className={`terminal-body overflow-y-auto p-3 ${isExpanded ? "max-h-[700px]" : "max-h-[500px]"}`}
       >
         {agentLogs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10">
-            <span className="text-slate-500 font-mono text-[12px]">
+            <span className="terminal-prompt text-slate-400 font-mono text-[12px]">
               $ waiting for {agent}...
             </span>
+            <span className="inline-block w-[6px] h-[13px] bg-slate-400/50 animate-pulse mt-2" />
           </div>
         ) : (
           <div className="font-mono text-[12px] leading-[1.8]">

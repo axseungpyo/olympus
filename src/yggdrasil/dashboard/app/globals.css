@@ -30,13 +30,181 @@
 }
 
 body {
-  background-color: #0c0f1a;
-  color: #e2e8f0;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-secondary);
   font-family: "Geist", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ══════════════════════════════════════════════════════
+   Asgard Light Theme — Warm Canvas
+   캔버스=따뜻한 중회색, 카드=밝은 크림, 명도차 ~20%
+   ══════════════════════════════════════════════════════ */
+html.light {
+  --color-bg-primary: #c4beb6;       /* 캔버스 배경 */
+  --color-bg-secondary: #f0ece6;     /* 카드/패널 (캔버스 대비 큰 명도차) */
+  --color-bg-tertiary: #e2ddd5;      /* 호버/활성 */
+  --color-bg-elevated: #f7f5f1;      /* 모달/드롭다운 */
+  --color-border: #a39a8e;           /* 뚜렷한 보더 */
+
+  --color-text-primary: #1c1917;
+  --color-text-secondary: #292524;
+  --color-text-muted: #57534e;
+  --color-text-faint: #78716c;
+
+  --color-link: #0e7490;
+  --color-warn: #b45309;
+  --color-error: #b91c1c;
+
+  --color-status-idle: #78716c;
+  --color-status-running: #7c3aed;
+  --color-status-blocked: #dc2626;
+  --color-status-done: #15803d;
+  --color-status-review: #a21caf;
+  --color-status-draft: #78716c;
+}
+
+html.light body {
+  background-color: #c4beb6;
+  color: #292524;
+}
+
+/* ── 카드 깊이감: shadow ── */
+html.light .bg-bg-secondary {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* ── 카드 내부 요소: bg-primary 계열이 어두워지는 문제 해결 ── */
+html.light [class*="bg-bg-primary\/"] {
+  background-color: rgba(226, 221, 213, 0.5) !important;
+}
+html.light .bg-bg-primary\/70 { background-color: #e6e1d9 !important; }
+html.light .bg-bg-primary\/80 { background-color: #e2ddd5 !important; }
+html.light .bg-bg-primary\/40 { background-color: rgba(226, 221, 213, 0.4) !important; }
+html.light .bg-bg-primary\/50 { background-color: rgba(226, 221, 213, 0.5) !important; }
+
+/* 터미널/로그 본문 — 카드 안의 코드 영역 */
+html.light div[class*="overflow-y-auto"][class*="bg-bg-primary"] {
+  background-color: #e8e4dd !important;
+}
+
+/* ── 헤더: 캔버스보다 살짝 밝게 + 강한 하단 보더 ── */
+html.light header.sticky {
+  background-color: rgba(216, 211, 203, 0.9) !important;
+  border-bottom-color: #a39a8e !important;
+  backdrop-filter: blur(12px);
+}
+
+/* ── 텍스트 반전 (slate → stone) ── */
+html.light .text-slate-100 { color: #1c1917 !important; }
+html.light .text-slate-200 { color: #292524 !important; }
+html.light .text-slate-300 { color: #44403c !important; }
+html.light .text-slate-400 { color: #57534e !important; }
+html.light .text-slate-500 { color: #78716c !important; }
+
+/* 강조 텍스트 */
+html.light .text-cyan-200 { color: #0e7490 !important; }
+html.light .text-emerald-300 { color: #047857 !important; }
+html.light .text-red-300 { color: #b91c1c !important; }
+
+/* ── 보더 반전 (전체 케이스 커버) ── */
+html.light .border-slate-700 { border-color: #a39a8e !important; }
+html.light .border-border\/60 { border-color: rgba(163, 154, 142, 0.75) !important; }
+html.light .border-border\/40 { border-color: rgba(163, 154, 142, 0.5) !important; }
+html.light .border-border\/80 { border-color: rgba(163, 154, 142, 0.85) !important; }
+html.light .border-slate-700\/50 { border-color: rgba(163, 154, 142, 0.5) !important; }
+html.light .border-slate-700\/80 { border-color: rgba(163, 154, 142, 0.8) !important; }
+
+/* ── 탭 활성 밑줄 강조 ── */
+html.light .border-slate-300 { border-color: #44403c !important; }
+
+/* ── 버튼: 어두운 톤으로 반전 ── */
+html.light .bg-slate-100 { background-color: #292524 !important; }
+html.light .text-slate-950 { color: #f7f5f1 !important; }
+html.light .hover\:bg-white:hover { background-color: #1c1917 !important; }
+
+/* ── AgentCard 글로우 → light에선 부드러운 shadow로 ── */
+html.light [style*="box-shadow"] {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── 푸터 ── */
+html.light footer { border-top-color: #a39a8e !important; }
+
+/* ── 에러/경고 배경 ── */
+html.light .bg-red-500\/10 { background-color: rgba(185, 28, 28, 0.08) !important; }
+html.light .border-red-500\/30 { border-color: rgba(185, 28, 28, 0.25) !important; }
+
+/* ══════════════════════════════════════════
+   Terminal — 코드 영역 차별화
+   ══════════════════════════════════════════ */
+.terminal-body {
+  background-color: #0c0f1a;  /* dark default */
+}
+
+html.light .terminal-body {
+  background-color: #3a3632;
+  color: #d6d0c8;
+}
+
+html.light .terminal-card {
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 터미널 내 텍스트 — light에서도 밝은 톤 유지 (코드 영역이니까) */
+html.light .terminal-body .text-slate-400 { color: #c4bdb4 !important; }
+html.light .terminal-body .text-slate-500 { color: #9c968d !important; }
+html.light .terminal-prompt { color: #c4bdb4 !important; }
+
+/* waiting 커서 */
+html.light .terminal-body .bg-slate-400\/50 { background-color: rgba(196, 189, 180, 0.5) !important; }
+
+/* 에러/경고 — 터미널 내에서도 잘 보이게 */
+html.light .terminal-body .text-\[\#ff6b6b\] { color: #fca5a5 !important; }
+html.light .terminal-body .text-\[\#fbbf24\] { color: #fcd34d !important; }
+
+/* ══════════════════════════════════════════
+   DAG Nodes — light/dark 적응
+   ══════════════════════════════════════════ */
+.dag-node-bg {
+  fill: rgba(19, 23, 41, 0.94);  /* dark default */
+}
+.dag-node-title {
+  fill: #f1f5f9;
+}
+.dag-node-sub {
+  fill: #94a3b8;
+}
+
+html.light .dag-node-bg {
+  fill: rgba(240, 236, 230, 0.97);  /* bg-secondary 톤 */
+}
+html.light .dag-node-title {
+  fill: #1c1917;
+}
+html.light .dag-node-sub {
+  fill: #57534e;
+}
+
+/* ── Scrollbar ── */
+html.light ::-webkit-scrollbar-thumb { background: #a39a8e; }
+html.light ::-webkit-scrollbar-thumb:hover { background: #78716c; }
+html.light * { scrollbar-color: #a39a8e transparent; }
+
+/* ── Selection ── */
+html.light ::selection {
+  background-color: rgba(14, 116, 144, 0.2);
+  color: #1c1917;
+}
+
+/* ══════════════════════════════════
+   Base styles (shared / dark default)
+   ══════════════════════════════════ */
 .font-mono {
   font-family: "Geist Mono", "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
 }
