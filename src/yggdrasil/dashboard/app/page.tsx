@@ -29,6 +29,7 @@ import StatsPanel from "../components/StatsPanel";
 import QuickActions from "../components/QuickActions";
 import DependencyView from "../components/DependencyView";
 import ApiKeysModal from "../components/ApiKeysModal";
+import CommandBar from "../components/CommandBar";
 import type { DependencyGraphResponse } from "../lib/types";
 
 const WS_BASE = getWsBase();
@@ -312,8 +313,8 @@ export default function DashboardPage() {
         )}
       </main>
 
-      <footer className="border-t border-border/40 px-6 py-4 text-center mt-10">
-        <span className="text-[13px] text-slate-500 font-mono tracking-wide">yggdrasil v0.3.5</span>
+      <footer className="border-t border-border/40 px-6 py-4 text-center mt-10 mb-14">
+        <span className="text-[13px] text-slate-500 font-mono tracking-wide">yggdrasil v0.4.0</span>
       </footer>
 
       {selectedDoc && (
@@ -325,6 +326,8 @@ export default function DashboardPage() {
       )}
 
       {showApiKeys && <ApiKeysModal onClose={() => setShowApiKeys(false)} />}
+
+      {isAuthenticated && <CommandBar isConnected={isConnected} />}
 
       {!isAuthenticated && (
         <>

@@ -10,6 +10,7 @@ import { parseIndex } from "./parser";
 import { getAgentStates } from "./agents";
 import fs from "fs/promises";
 import { createLogger } from "./logger";
+import { loadHistory, getMessages, processCommand, processApproval, saveHistory } from "./odin-channel";
 
 const PORT = parseInt(process.env.PORT || "7777", 10);
 const dev = process.env.NODE_ENV !== "production";
@@ -34,6 +35,7 @@ async function main() {
 
   const wssLogs = new WebSocketServer({ noServer: true });
   const wssStatus = new WebSocketServer({ noServer: true });
+  const wssOdin = new WebSocketServer({ noServer: true });
 
   server.on("upgrade", (request, socket, head) => {
     const { pathname } = new URL(request.url || "/", `http://localhost:${PORT}`);
@@ -45,6 +47,10 @@ async function main() {
     } else if (pathname === "/ws/status") {
       wssStatus.handleUpgrade(request, socket, head, (ws) => {
         wssStatus.emit("connection", ws, request);
+      });
+    } else if (pathname === "/ws/odin") {
+      wssOdin.handleUpgrade(request, socket, head, (ws) => {
+        wssOdin.emit("connection", ws, request);
       });
     } else {
       socket.destroy();
@@ -76,6 +82,7 @@ async function main() {
 
   setupHeartbeat(wssLogs);
   setupHeartbeat(wssStatus);
+  setupHeartbeat(wssOdin);
 
   const watcher = new AsgardWatcher(ASGARD_ROOT);
 
@@ -160,6 +167,47 @@ async function main() {
     }
   });
 
+  // Odin Command Channel WebSocket
+  wssOdin.on("connection", async (ws, request) => {
+    if (!authorizeWebSocket(ws, request, "odin")) return;
+
+    ws.send(JSON.stringify({ type: "connected", data: { message: "Odin channel connected" } }));
+
+    // Send existing messages
+    const history = getMessages(50);
+    for (const msg of history) {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "message", data: msg }));
+      }
+    }
+
+    // Handle incoming commands
+    ws.on("message", async (raw) => {
+      try {
+        const parsed = JSON.parse(raw.toString());
+
+        if (parsed.type === "command" && typeof parsed.content === "string") {
+          const result = await processCommand(parsed.content, ASGARD_ROOT);
+          await saveHistory(ASGARD_ROOT);
+          for (const msg of result.messages) {
+            broadcast(wssOdin, { type: "message", data: msg });
+          }
+        } else if (parsed.type === "approve" && typeof parsed.approvalId === "string") {
+          const result = await processApproval(parsed.approvalId, parsed.approved !== false, ASGARD_ROOT);
+          await saveHistory(ASGARD_ROOT);
+          for (const msg of result.messages) {
+            broadcast(wssOdin, { type: "message", data: msg });
+          }
+        }
+      } catch (err) {
+        log.error({ err }, "Failed to process Odin WS message");
+      }
+    });
+  });
+
+  // Load Odin chat history
+  await loadHistory(ASGARD_ROOT);
+
   await watcher.start();
 
   server.listen(PORT, () => {
@@ -174,7 +222,7 @@ async function main() {
       },
       "Yggdrasil auth token"
     );
-    log.info({ endpoints: ["/ws/logs", "/ws/status"] }, "WebSocket endpoints ready");
+    log.info({ endpoints: ["/ws/logs", "/ws/status", "/ws/odin"] }, "WebSocket endpoints ready");
   });
 
   const shutdown = async () => {
@@ -182,6 +230,7 @@ async function main() {
     await watcher.stop();
     wssLogs.close();
     wssStatus.close();
+    wssOdin.close();
     server.close();
     process.exit(0);
   };

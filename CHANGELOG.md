@@ -3,6 +3,22 @@
 이 프로젝트의 주요 변경사항을 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)
 
+## [0.4.0] - 2026-03-11
+
+### Added
+- **Odin Command Channel** — 대시보드에서 Odin과 양방향 소통
+  - `CommandBar.tsx` — 하단 고정 명령 입력 바 (⌘K 단축키)
+  - 자연어 명령 → Skill 자동 매핑 (상태, 검증, 위임, 검토, 기획, 롤백, 재시도)
+  - 승인 워크플로우 — 위험한 작업(delegate, rollback 등)은 Approve/Cancel 확인
+  - 메시지 히스토리 영속 저장 (`artifacts/logs/odin-chat.jsonl`)
+  - `server/odin-channel.ts` — 명령 파싱, Skill 매핑, 승인 관리
+  - `POST /api/odin/command` — 사용자 명령 전송
+  - `POST /api/odin/approve` — 승인/거부 응답
+  - `GET /api/odin/messages` — 메시지 히스토리 조회
+  - `WS /ws/odin` — 실시간 양방향 WebSocket 채널
+- **Control Panel 마스터 플랜** — `artifacts/plans/CONTROL-PANEL-PLAN.md`
+  - Phase 1~5 로드맵 (Command Channel → Agent Control → Task Management → MCP → Control Dashboard)
+
 ## [0.3.5] - 2026-03-11
 
 ### Added
