@@ -117,6 +117,16 @@ const SKILL_PATTERNS: {
     description: "실패한 TP를 재실행합니다.",
     requiresApproval: true,
   },
+  {
+    patterns: [/중지/, /stop/, /멈춰/, /kill/, /종료/],
+    skill: "stop-agent",
+    extractArgs: (msg) => {
+      const agentMatch = msg.match(/brokkr|heimdall|loki/i);
+      return agentMatch ? agentMatch[0].toLowerCase() : "";
+    },
+    description: "에이전트를 중지합니다.",
+    requiresApproval: true,
+  },
 ];
 
 function matchSkill(message: string): SkillMatch | null {
@@ -395,9 +405,46 @@ async function executeSkill(skill: string, args: string, asgardRoot: string): Pr
     }
   }
 
-  // For skills that require CLI execution (delegate, review, etc.)
-  // Phase 2에서 control.ts를 통해 실제 실행 예정
-  return `\`/${skill}${args ? ` ${args}` : ""}\` — 이 Skill은 Phase 2 (Agent Control)에서 대시보드 실행이 지원됩니다.\n현재는 CLI에서 \`/${skill} ${args}\`를 실행해주세요.`;
+  // ── Agent Control Skills (Phase 2) ──
+
+  if (skill === "stop-agent") {
+    if (!args) return "에이전트 이름이 필요합니다. 예: `Brokkr 중지`";
+    const { stopAgent } = await import("./control");
+    const agentName = args.toLowerCase() as "brokkr" | "heimdall" | "loki";
+    const result = await stopAgent(asgardRoot, agentName);
+    return result.success
+      ? `**${agentName} 중지됨**\n\n${result.message}`
+      : `중지 실패: ${result.message}`;
+  }
+
+  if (skill === "delegate") {
+    if (!args) return "TP ID가 필요합니다. 예: `TP-016 위임`";
+    const { startAgent } = await import("./control");
+    const result = await startAgent(asgardRoot, "brokkr", { tp: args });
+    if (result.success) {
+      return `**Brokkr 시작됨**\n\n` +
+        `• Task: ${args}\n` +
+        `• Mode: ${result.mode}\n` +
+        (result.pid ? `• PID: ${result.pid}` : "");
+    }
+    return `Brokkr 시작 실패: ${result.message}`;
+  }
+
+  if (skill === "delegate-gemini") {
+    if (!args) return "TP ID가 필요합니다. 예: `TP-016 Heimdall 위임`";
+    const { startAgent } = await import("./control");
+    const result = await startAgent(asgardRoot, "heimdall", { tp: args });
+    if (result.success) {
+      return `**Heimdall 시작됨**\n\n` +
+        `• Task: ${args}\n` +
+        `• Mode: ${result.mode}\n` +
+        (result.pid ? `• PID: ${result.pid}` : "");
+    }
+    return `Heimdall 시작 실패: ${result.message}`;
+  }
+
+  // For skills not yet implemented (review, rollback, retry)
+  return `\`/${skill}${args ? ` ${args}` : ""}\` — 이 Skill은 Phase 3 (Task Management)에서 대시보드 실행이 지원됩니다.\n현재는 CLI에서 \`/${skill} ${args}\`를 실행해주세요.`;
 }
 
 // ── Persistence ──

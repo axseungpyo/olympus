@@ -267,7 +267,7 @@ export default function DashboardPage() {
               <h2 className="text-[13px] font-mono font-medium text-slate-400 uppercase tracking-[0.15em] mb-4">Agents</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
                 {agents.map((agent) => (
-                  <AgentCard key={agent.name} agent={agent} />
+                  <AgentCard key={agent.name} agent={agent} tasks={tasks.map(t => ({ id: t.id, title: t.title }))} />
                 ))}
               </div>
             </section>
@@ -285,7 +285,7 @@ export default function DashboardPage() {
               <h2 className="text-[13px] font-mono font-medium text-slate-400 uppercase tracking-[0.15em] mb-4">Agents</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
                 {agents.map((agent) => (
-                  <AgentCard key={agent.name} agent={agent} />
+                  <AgentCard key={agent.name} agent={agent} tasks={tasks.map(t => ({ id: t.id, title: t.title }))} />
                 ))}
               </div>
             </section>

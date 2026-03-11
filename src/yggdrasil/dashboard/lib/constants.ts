@@ -44,3 +44,38 @@ export function getWsBase(): string {
 }
 
 export const MAX_LOGS = 500;
+
+// ─── Agent Mode Configuration ───
+
+export interface AgentModeConfig {
+  id: string;
+  label: string;
+  description: string;
+}
+
+export const AGENT_MODE_CONFIG: Partial<Record<AgentName, { modes: AgentModeConfig[]; defaultMode: string }>> = {
+  brokkr: {
+    defaultMode: "anvil",
+    modes: [
+      { id: "spark", label: "Spark", description: "Simple edits, boilerplate" },
+      { id: "anvil", label: "Anvil", description: "Standard implementation" },
+      { id: "mjolnir", label: "Mjolnir", description: "Complex multi-file work" },
+      { id: "ragnarok", label: "Ragnarok", description: "Extended autonomous work" },
+    ],
+  },
+  heimdall: {
+    defaultMode: "bifrost",
+    modes: [
+      { id: "glint", label: "Glint", description: "Quick OCR/classify" },
+      { id: "bifrost", label: "Bifrost", description: "Detailed analysis" },
+      { id: "gjallarhorn", label: "Gjallarhorn", description: "Image generation" },
+    ],
+  },
+  loki: {
+    defaultMode: "sketch",
+    modes: [
+      { id: "sketch", label: "Sketch", description: "Fast mock/placeholder" },
+      { id: "canvas", label: "Canvas", description: "Precision image gen" },
+    ],
+  },
+};

@@ -3,6 +3,7 @@ import path from "path";
 import type { AgentName, AgentState, AgentStatus, Task } from "../dashboard/lib/types";
 import { AGENT_CONFIG, AGENT_NAMES } from "../dashboard/lib/constants";
 import { createLogger } from "./logger";
+import { getRunningAgents } from "./control";
 
 const log = createLogger({ component: "Agents" });
 
@@ -99,12 +100,16 @@ export async function getAgentStates(
       }
     }
 
+    // Resolve mode from control registry
+    const runningInfo = getRunningAgents().get(name);
+    const mode = runningInfo?.mode ?? null;
+
     states.push({
       name,
       displayName: config.displayName as string,
       status,
       currentTP,
-      mode: null,
+      mode,
       startedAt,
       pid,
       color: config.color,
