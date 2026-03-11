@@ -5,7 +5,7 @@ import {
   getExecutionOrder,
   parseDependencies,
   type TPMeta,
-} from "../dependency";
+} from "../infra/dependency";
 
 describe("dependency helpers", () => {
   it("parses no dependencies when field is missing", () => {

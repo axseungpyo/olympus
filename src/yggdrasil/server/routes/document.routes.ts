@@ -1,16 +1,16 @@
 import { Router, type Request, type Response } from "express";
 import path from "path";
 import fs from "fs/promises";
-import { parseIndex, parseDocument } from "../parser";
-import { getAgentStates } from "../agents";
-import { createLogger } from "../logger";
+import { parseIndex, parseDocument } from "../domain/tasks/task-parser";
+import { getAgentStates } from "../domain/agents/agent-state";
+import { createLogger } from "../infra/logger";
 import {
   buildDependencyGraph,
   detectCycle,
   getExecutionOrder,
   parseDependencies,
   type TPMeta,
-} from "../dependency";
+} from "../infra/dependency";
 
 const ALLOWED_SKILLS = ["status", "validate"] as const;
 type AllowedSkill = (typeof ALLOWED_SKILLS)[number];

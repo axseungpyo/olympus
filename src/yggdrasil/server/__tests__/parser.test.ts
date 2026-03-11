@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseIndex } from "../parser";
+import { parseIndex } from "../domain/tasks/task-parser";
 
 describe("parseIndex", () => {
   const VALID_INDEX = `# Asgard Chronicle

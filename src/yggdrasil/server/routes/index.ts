@@ -1,5 +1,5 @@
 import { Router, type Response } from "express";
-import { authMiddleware } from "../auth";
+import { authMiddleware } from "../infra/auth";
 import { createHealthRouter } from "./health.routes";
 import { createAgentRouter } from "./agent.routes";
 import { createTaskRouter } from "./task.routes";

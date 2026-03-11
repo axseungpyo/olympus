@@ -1,12 +1,12 @@
 import { Router, type Request, type Response } from "express";
-import { createLogger } from "../logger";
+import { createLogger } from "../infra/logger";
 import {
   listMcpServers,
   addMcpServer,
   removeMcpServer,
   updateMcpServer,
   syncToClaudeSettings,
-} from "../mcp-manager";
+} from "../domain/mcp/mcp-manager";
 
 export function createMcpRouter(asgardRoot: string): Router {
   const router = Router();

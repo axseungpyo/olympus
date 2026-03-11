@@ -1,8 +1,8 @@
 import { Router, type Request, type Response } from "express";
-import { parseIndex } from "../parser";
-import { getAgentStates } from "../agents";
-import { createLogger } from "../logger";
-import { collectMetrics } from "../metrics";
+import { parseIndex } from "../domain/tasks/task-parser";
+import { getAgentStates } from "../domain/agents/agent-state";
+import { createLogger } from "../infra/logger";
+import { collectMetrics } from "../infra/metrics";
 import fs from "fs/promises";
 import path from "path";
 

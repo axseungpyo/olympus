@@ -1,4 +1,4 @@
-import type { TaskStatus } from "../shared/types";
+import type { TaskStatus } from "../../shared/types";
 
 export interface TPMeta {
   id: string;

@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
-import type { OdinAction, OdinMessage } from "../shared/types";
-import { createLogger } from "./logger";
+import type { OdinAction, OdinMessage } from "../../../shared/types";
+import { createLogger } from "../../infra/logger";
 
 const log = createLogger({ component: "OdinChannel" });
 
@@ -331,8 +331,8 @@ async function executeSkill(skill: string, args: string, asgardRoot: string): Pr
 
   if (skill === "status") {
     const indexContent = await fs.readFile(path.join(artifactsDir, "INDEX.md"), "utf-8").catch(() => "");
-    const { parseIndex } = await import("./parser");
-    const { getAgentStates } = await import("./agents");
+    const { parseIndex } = await import("../tasks/task-parser");
+    const { getAgentStates } = await import("../agents/agent-state");
     const tasks = parseIndex(indexContent);
     const agents = await getAgentStates(asgardRoot, tasks);
 
@@ -386,7 +386,7 @@ async function executeSkill(skill: string, args: string, asgardRoot: string): Pr
 
   if (skill === "stop-agent") {
     if (!args) return "에이전트 이름이 필요합니다. 예: `Brokkr 중지`";
-    const { stopAgent } = await import("./control");
+    const { stopAgent } = await import("../agents/agent-control");
     const agentName = args.toLowerCase() as "brokkr" | "heimdall" | "loki";
     const result = await stopAgent(asgardRoot, agentName);
     return result.success
@@ -396,7 +396,7 @@ async function executeSkill(skill: string, args: string, asgardRoot: string): Pr
 
   if (skill === "delegate") {
     if (!args) return "TP ID가 필요합니다. 예: `TP-016 위임`";
-    const { startAgent } = await import("./control");
+    const { startAgent } = await import("../agents/agent-control");
     const result = await startAgent(asgardRoot, "brokkr", { tp: args });
     if (result.success) {
       return `**Brokkr 시작됨**\n\n` +
@@ -409,7 +409,7 @@ async function executeSkill(skill: string, args: string, asgardRoot: string): Pr
 
   if (skill === "delegate-gemini") {
     if (!args) return "TP ID가 필요합니다. 예: `TP-016 Heimdall 위임`";
-    const { startAgent } = await import("./control");
+    const { startAgent } = await import("../agents/agent-control");
     const result = await startAgent(asgardRoot, "heimdall", { tp: args });
     if (result.success) {
       return `**Heimdall 시작됨**\n\n` +

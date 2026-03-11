@@ -3,7 +3,7 @@ import {
   buildAgentMetrics,
   parseExecutionLog,
   parseIndexMetrics,
-} from "../metrics";
+} from "../infra/metrics";
 
 describe("metrics", () => {
   it("parses execution.log entries in current and legacy formats", () => {

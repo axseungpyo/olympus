@@ -1,6 +1,6 @@
 import fs from "fs/promises";
-import type { Task, TaskStatus } from "../shared/types";
-import { createLogger } from "./logger";
+import type { Task, TaskStatus } from "../../../shared/types";
+import { createLogger } from "../../infra/logger";
 
 const log = createLogger({ component: "Parser" });
 

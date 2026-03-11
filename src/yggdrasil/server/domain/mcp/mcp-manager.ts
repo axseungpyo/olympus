@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import { createLogger } from "./logger";
+import { createLogger } from "../../infra/logger";
 
 const log = createLogger({ component: "MCPManager" });
 

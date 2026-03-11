@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getAgentStates } from "../agents";
+import { getAgentStates } from "../domain/agents/agent-state";
 import type { Task } from "../../shared/types";
 
 vi.mock("fs/promises", () => ({

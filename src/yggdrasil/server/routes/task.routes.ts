@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from "express";
-import { createLogger } from "../logger";
+import { createLogger } from "../infra/logger";
 import {
   listTasks,
   getTask,
@@ -7,7 +7,7 @@ import {
   updateTaskStatus,
   deleteTask,
   type CreateTaskInput,
-} from "../task-manager";
+} from "../domain/tasks/task-manager";
 import type { TaskStatus } from "../../shared/types";
 
 export function createTaskRouter(asgardRoot: string): Router {

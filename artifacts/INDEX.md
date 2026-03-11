@@ -8,6 +8,7 @@ Last updated: 2026-03-11
 |----|-------|-------|--------|---------|---------|
 | TP-016 | 타입 경계 수정 — shared/types.ts 분리 | codex | done | 2026-03-11 | 2026-03-12 |
 | TP-017 | 라우트 분해 — routes.ts → 6개 도메인 라우터 | codex | done | 2026-03-12 | 2026-03-12 |
+| TP-018 | 서버 도메인 모듈화 — domain/ + infra/ 구조 | codex | done | 2026-03-12 | 2026-03-12 |
 
 ## Completed Tasks
 
@@ -29,4 +30,4 @@ Last updated: 2026-03-11
 | TP-004 | 랜딩 페이지 스크린샷 분석 및 UI 클론 | gemini | 2026-03-09 |
 | TP-005 | API 문서 자동 생성 (Swagger/OpenAPI) | codex | 2026-03-09 |
 
-## Next TP Number: TP-018
+## Next TP Number: TP-019

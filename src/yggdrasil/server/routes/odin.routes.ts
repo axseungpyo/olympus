@@ -1,11 +1,11 @@
 import { Router, type Request, type Response } from "express";
-import { createLogger } from "../logger";
+import { createLogger } from "../infra/logger";
 import {
   getMessages,
   processCommand,
   processApproval,
   saveHistory,
-} from "../odin-channel";
+} from "../domain/odin/odin-channel";
 
 export function createOdinRouter(asgardRoot: string): Router {
   const router = Router();

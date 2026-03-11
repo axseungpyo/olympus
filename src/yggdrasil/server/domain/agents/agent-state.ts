@@ -1,9 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
-import type { AgentName, AgentState, AgentStatus, Task } from "../shared/types";
-import { AGENT_CONFIG, AGENT_NAMES } from "../shared/constants";
-import { createLogger } from "./logger";
-import { getRunningAgents } from "./control";
+import type { AgentName, AgentState, AgentStatus, Task } from "../../../shared/types";
+import { AGENT_CONFIG, AGENT_NAMES } from "../../../shared/constants";
+import { createLogger } from "../../infra/logger";
+import { getRunningAgents } from "./agent-control";
 
 const log = createLogger({ component: "Agents" });
 

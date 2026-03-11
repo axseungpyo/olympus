@@ -1,11 +1,11 @@
 import { Router, type Request, type Response } from "express";
-import { createLogger } from "../logger";
+import { createLogger } from "../infra/logger";
 import {
   startAgent,
   stopAgent,
   getAgentHealth,
   AGENT_MODES,
-} from "../control";
+} from "../domain/agents/agent-control";
 import type { AgentName } from "../../shared/types";
 import { AGENT_NAMES } from "../../shared/constants";
 

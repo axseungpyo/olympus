@@ -3,7 +3,7 @@ import os from "os";
 import path from "path";
 import express from "express";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { authMiddleware, getToken, validateToken } from "../auth";
+import { authMiddleware, getToken, validateToken } from "../infra/auth";
 import { createRouter } from "../routes";
 
 interface DispatchResult {

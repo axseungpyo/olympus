@@ -2,9 +2,9 @@ import { EventEmitter } from "events";
 import fs from "fs/promises";
 import path from "path";
 import chokidar from "chokidar";
-import { parseIndex } from "./parser";
-import { getAgentStates } from "./agents";
-import type { AgentName, LogEntry } from "../shared/types";
+import { parseIndex } from "../domain/tasks/task-parser";
+import { getAgentStates } from "../domain/agents/agent-state";
+import type { AgentName, LogEntry } from "../../shared/types";
 import { createLogger } from "./logger";
 
 const TAIL_INITIAL_LINES = 500;
