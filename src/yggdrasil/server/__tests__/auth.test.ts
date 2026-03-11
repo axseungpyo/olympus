@@ -138,8 +138,10 @@ describe("auth", () => {
     const odinChannel = createOdinChannel({
       messageRepository: container.messageRepository,
       skillRegistry: container.skillRegistry,
+      approvalStore: container.approvalStore,
     });
-    app.use(createRouter(container, odinChannel));
+    void odinChannel;
+    app.use(createRouter(container));
 
     const statusResponse = await dispatchRequest(app, "/api/status");
     const healthResponse = await dispatchRequest(app, "/api/health");

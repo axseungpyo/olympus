@@ -23,11 +23,12 @@ async function main() {
   const odinChannel = createOdinChannel({
     messageRepository: container.messageRepository,
     skillRegistry: container.skillRegistry,
+    approvalStore: container.approvalStore,
   });
 
   const app = express();
   app.use(express.json());
-  app.use(createRouter(container, odinChannel));
+  app.use(createRouter(container));
 
   app.all("/{*path}", (req, res) => {
     return handle(req, res);

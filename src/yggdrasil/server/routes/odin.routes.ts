@@ -1,55 +1,10 @@
-import { Router, type Request, type Response } from "express";
-import { createLogger } from "../infra/logger";
-import type { OdinChannel } from "../domain/odin/odin-channel";
+import { Router } from "express";
+import { OdinController } from "../adapters/controllers/OdinController";
 
-export function createOdinRouter(odinChannel: OdinChannel): Router {
+export function createOdinRouter(controller: OdinController): Router {
   const router = Router();
-  const log = createLogger({ component: "OdinRoutes" });
-
-  router.get("/api/odin/messages", (req: Request, res: Response) => {
-    const limit = parseInt((req.query.limit as string) || "50", 10);
-    res.json({ messages: odinChannel.getMessages(limit) });
-  });
-
-  router.post("/api/odin/command", async (req: Request, res: Response) => {
-    const { content } = (req.body ?? {}) as { content?: string };
-    if (!content || typeof content !== "string") {
-      res.status(400).json({ error: "Body must be { content: string }" });
-      return;
-    }
-
-    try {
-      log.info({ content }, "Odin command received");
-      const result = await odinChannel.processCommand(content);
-      await odinChannel.saveHistory();
-      res.json(result);
-    } catch (err: unknown) {
-      log.error({ err }, "Odin command failed");
-      res.status(500).json({ error: "Command processing failed" });
-    }
-  });
-
-  router.post("/api/odin/approve", async (req: Request, res: Response) => {
-    const { approvalId, approved } = (req.body ?? {}) as {
-      approvalId?: string;
-      approved?: boolean;
-    };
-
-    if (!approvalId || typeof approved !== "boolean") {
-      res.status(400).json({ error: "Body must be { approvalId: string, approved: boolean }" });
-      return;
-    }
-
-    try {
-      log.info({ approvalId, approved }, "Odin approval response");
-      const result = await odinChannel.processApproval(approvalId, approved);
-      await odinChannel.saveHistory();
-      res.json(result);
-    } catch (err: unknown) {
-      log.error({ err }, "Odin approval failed");
-      res.status(500).json({ error: "Approval processing failed" });
-    }
-  });
-
+  router.get("/api/odin/messages", (req, res) => controller.getMessages(req, res));
+  router.post("/api/odin/command", (req, res) => controller.command(req, res));
+  router.post("/api/odin/approve", (req, res) => controller.approve(req, res));
   return router;
 }
