@@ -1,11 +1,12 @@
 # Asgard Chronicle — Work Status Index
 
-Last updated: 2026-03-10
+Last updated: 2026-03-11
 
 ## Active Tasks
 
 | ID | Title | Agent | Status | Created | Updated |
 |----|-------|-------|--------|---------|---------|
+| TP-016 | 타입 경계 수정 — shared/types.ts 분리 | codex | draft | 2026-03-11 | 2026-03-11 |
 
 ## Completed Tasks
 
@@ -27,4 +28,4 @@ Last updated: 2026-03-10
 | TP-004 | 랜딩 페이지 스크린샷 분석 및 UI 클론 | gemini | 2026-03-09 |
 | TP-005 | API 문서 자동 생성 (Swagger/OpenAPI) | codex | 2026-03-09 |
 
-## Next TP Number: TP-016
+## Next TP Number: TP-017
