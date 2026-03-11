@@ -107,3 +107,31 @@
 - **Rationale**: 북유럽 신화의 역할 분담이 시스템 구조와 더 정확히 매핑됨. Odin(전략가)→Brokkr(장인)→Heimdall(관측자)의 관계가 Brain→Code→Vision 구조에 자연스럽게 대응. Loki(변환자)로 향후 이미지 생성 에이전트 확장 가능.
 - **Tradeoffs**: 기존 Olympus 참조 코드/문서와의 호환성 단절. GitHub 저장소명 변경 필요.
 - **Review Condition**: 없음
+
+---
+
+## Decision 9: Plan B — Clean Architecture 기반 AI Brain 구현
+
+- **Date**: 2026-03-12
+- **Options**:
+  - A) 기존 domain/ 구조 위에 바로 AI Brain 추가 (빠르지만 결합도 높음)
+  - B) Clean Architecture 레이어 도입 후 AI Brain 추가 (시간 더 걸리지만 확장성 확보)
+  - C) 완전 재작성 (과도함)
+- **Chosen**: B
+- **Rationale**: 현재 domain/ 코드는 파일 I/O와 비즈니스 로직이 혼재. AI Brain(LLM Gateway)을 깔끔하게 추가하려면 Repository Pattern + Use Case Layer가 필수. core/는 순수 도메인(외부 의존성 제로), adapters/는 구현체 분리.
+- **Tradeoffs**: 4개 Phase로 나눠야 하므로 AI 기능 도달까지 시간 소요. 하지만 각 Phase가 독립적으로 검증 가능.
+- **Review Condition**: core/ 내부에 fs/path/child_process import가 발견되면 구조 재검토
+
+---
+
+## Decision 10: DI 전략 — Simple Factory (프레임워크 미사용)
+
+- **Date**: 2026-03-12
+- **Options**:
+  - A) InversifyJS / tsyringe 등 DI 프레임워크 사용
+  - B) Simple Factory 패턴 (di/container.ts에서 수동 조립)
+  - C) 글로벌 싱글톤
+- **Chosen**: B
+- **Rationale**: 현재 규모(서버 파일 ~30개)에서 DI 프레임워크는 과도. Factory 패턴으로 충분히 테스트 가능한 구조 확보. 데코레이터 의존 없이 순수 TypeScript.
+- **Tradeoffs**: 의존성 수가 크게 늘면 factory 코드가 비대해질 수 있음.
+- **Review Condition**: 의존성 생성 코드가 50줄 이상 되면 프레임워크 도입 검토

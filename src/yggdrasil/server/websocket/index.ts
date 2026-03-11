@@ -1,5 +1,7 @@
 import http from "http";
+import type { Container } from "../di/container";
 import type { AsgardWatcher } from "../infra/watcher";
+import type { OdinChannel } from "../domain/odin/odin-channel";
 import { handleLogsConnection } from "./logs-handler";
 import { handleOdinConnection } from "./odin-handler";
 import { handleStatusConnection } from "./status-handler";
@@ -13,7 +15,8 @@ import {
 export function setupWebSockets(
   server: http.Server,
   watcher: AsgardWatcher,
-  asgardRoot: string
+  container: Container,
+  odinChannel: OdinChannel,
 ): void {
   const { wssLogs, wssStatus, wssOdin } = createWebSocketServers(server);
 
@@ -40,7 +43,7 @@ export function setupWebSockets(
   });
 
   wssStatus.on("connection", (ws, request) => {
-    void handleStatusConnection(ws, request, watcher, asgardRoot, authorizeWebSocket, broadcast);
+    void handleStatusConnection(ws, request, watcher, container, authorizeWebSocket, broadcast);
   });
 
   wssOdin.on("connection", (ws, request) => {
@@ -48,7 +51,7 @@ export function setupWebSockets(
       ws,
       request,
       watcher,
-      asgardRoot,
+      odinChannel,
       authorizeWebSocket,
       broadcast,
       wssOdin

@@ -1,15 +1,16 @@
 import { Router, type Request, type Response } from "express";
 import { createLogger } from "../infra/logger";
+import type { Container } from "../di/container";
 import {
   startAgent,
   stopAgent,
   getAgentHealth,
-  AGENT_MODES,
 } from "../domain/agents/agent-control";
+import { AGENT_MODES } from "../../shared/types";
 import type { AgentName } from "../../shared/types";
 import { AGENT_NAMES } from "../../shared/constants";
 
-export function createAgentRouter(asgardRoot: string): Router {
+export function createAgentRouter(container: Container): Router {
   const router = Router();
   const log = createLogger({ component: "AgentRoutes" });
 
@@ -24,7 +25,7 @@ export function createAgentRouter(asgardRoot: string): Router {
       return;
     }
     try {
-      const health = await getAgentHealth(asgardRoot, name as AgentName);
+      const health = await getAgentHealth(container.agentRepository, name as AgentName);
       res.json(health);
     } catch (err: unknown) {
       log.error({ err, agent: name }, "Agent health check failed");
@@ -47,7 +48,13 @@ export function createAgentRouter(asgardRoot: string): Router {
 
     try {
       log.info({ agent: name, tp, mode }, "Agent start request");
-      const result = await startAgent(asgardRoot, name as AgentName, { tp, mode });
+      const result = await startAgent(
+        container.taskRepository,
+        container.agentRepository,
+        container.processGateway,
+        name as AgentName,
+        { tp, mode },
+      );
       res.status(result.success ? 200 : 400).json(result);
     } catch (err: unknown) {
       log.error({ err, agent: name }, "Agent start failed");
@@ -64,7 +71,11 @@ export function createAgentRouter(asgardRoot: string): Router {
 
     try {
       log.info({ agent: name }, "Agent stop request");
-      const result = await stopAgent(asgardRoot, name as AgentName);
+      const result = await stopAgent(
+        container.agentRepository,
+        container.processGateway,
+        name as AgentName,
+      );
       res.status(result.success ? 200 : 400).json(result);
     } catch (err: unknown) {
       log.error({ err, agent: name }, "Agent stop failed");

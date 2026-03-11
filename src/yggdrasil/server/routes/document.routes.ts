@@ -1,9 +1,10 @@
 import { Router, type Request, type Response } from "express";
 import path from "path";
 import fs from "fs/promises";
-import { parseIndex, parseDocument } from "../domain/tasks/task-parser";
+import { parseIndex } from "../domain/tasks/task-parser";
 import { getAgentStates } from "../domain/agents/agent-state";
 import { createLogger } from "../infra/logger";
+import type { Container } from "../di/container";
 import {
   buildDependencyGraph,
   detectCycle,
@@ -40,9 +41,9 @@ interface DependencyGraphResponse {
   cycle: string[] | null;
 }
 
-export function createDocumentRouter(asgardRoot: string): Router {
+export function createDocumentRouter(container: Container): Router {
   const router = Router();
-  const artifactsDir = path.resolve(asgardRoot, "artifacts");
+  const artifactsDir = path.resolve(container.asgardRoot, "artifacts");
   const log = createLogger({ component: "DocumentRoutes" });
 
   async function readIndexFile(): Promise<string> {
@@ -157,7 +158,7 @@ export function createDocumentRouter(asgardRoot: string): Router {
   async function executeStatusSkill() {
     const content = await readIndexFile();
     const tasks = parseIndex(content);
-    const agents = await getAgentStates(asgardRoot, tasks);
+    const agents = await getAgentStates(container.agentRepository, tasks);
 
     return {
       skill: "status" as const,
@@ -245,7 +246,7 @@ export function createDocumentRouter(asgardRoot: string): Router {
     }
 
     try {
-      const doc = await parseDocument(filePath);
+      const doc = await readDocument(filePath);
       if (!doc.content) {
         res.status(404).json({ error: "Document not found" });
         return;
@@ -326,7 +327,7 @@ export function createDocumentRouter(asgardRoot: string): Router {
     try {
       const content = await readIndexFile();
       const tasks = parseIndex(content);
-      const agents = await getAgentStates(asgardRoot, tasks);
+      const agents = await getAgentStates(container.agentRepository, tasks);
       res.json({ agents });
     } catch (err: unknown) {
       log.error({ err }, "/api/agents error");
@@ -358,9 +359,9 @@ export function createDocumentRouter(asgardRoot: string): Router {
       return;
     }
 
-    const skillPath = path.resolve(asgardRoot, ".claude", "skills", name as string, "SKILL.md");
+    const skillPath = path.resolve(container.asgardRoot, ".claude", "skills", name as string, "SKILL.md");
 
-    if (!skillPath.startsWith(path.resolve(asgardRoot, ".claude", "skills"))) {
+    if (!skillPath.startsWith(path.resolve(container.asgardRoot, ".claude", "skills"))) {
       res.status(403).json({ error: "Access denied" });
       return;
     }
@@ -388,4 +389,13 @@ export function createDocumentRouter(asgardRoot: string): Router {
   });
 
   return router;
+}
+
+async function readDocument(filePath: string): Promise<{ title: string; content: string }> {
+  const content = await fs.readFile(filePath, "utf-8");
+  const titleMatch = content.match(/^#\s+(.+)$/m);
+  return {
+    title: titleMatch ? titleMatch[1].trim() : "Untitled",
+    content,
+  };
 }

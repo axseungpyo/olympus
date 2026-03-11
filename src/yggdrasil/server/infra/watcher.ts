@@ -4,6 +4,7 @@ import path from "path";
 import chokidar from "chokidar";
 import { parseIndex } from "../domain/tasks/task-parser";
 import { getAgentStates } from "../domain/agents/agent-state";
+import type { Container } from "../di/container";
 import type { AgentName, LogEntry } from "../../shared/types";
 import { createLogger } from "./logger";
 
@@ -11,13 +12,13 @@ const TAIL_INITIAL_LINES = 500;
 const log = createLogger({ component: "Watcher" });
 
 export class AsgardWatcher extends EventEmitter {
-  private asgardRoot: string;
+  private readonly asgardRoot: string;
   private fileOffsets: Map<string, number> = new Map();
   private watcher: ReturnType<typeof chokidar.watch> | null = null;
 
-  constructor(asgardRoot: string) {
+  constructor(private readonly container: Container) {
     super();
-    this.asgardRoot = asgardRoot;
+    this.asgardRoot = container.asgardRoot;
   }
 
   async start(): Promise<void> {
@@ -152,7 +153,7 @@ export class AsgardWatcher extends EventEmitter {
       const tasks = parseIndex(content);
       this.emit("index-change", { tasks });
 
-      const agents = await getAgentStates(this.asgardRoot, tasks);
+      const agents = await getAgentStates(this.container.agentRepository, tasks);
       this.emit("agent-change", { agents });
     } catch (err: unknown) {
       log.error({ err }, "Failed to parse INDEX.md");
@@ -171,7 +172,7 @@ export class AsgardWatcher extends EventEmitter {
         }
       }
       const tasks = parseIndex(content);
-      const agents = await getAgentStates(this.asgardRoot, tasks);
+      const agents = await getAgentStates(this.container.agentRepository, tasks);
       this.emit("agent-change", { agents });
     } catch (err: unknown) {
       log.error({ err }, "Failed to update agent states");

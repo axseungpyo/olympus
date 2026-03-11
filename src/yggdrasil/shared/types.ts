@@ -1,38 +1,32 @@
-export type AgentName = "odin" | "brokkr" | "heimdall" | "loki";
-
-export type AgentStatus = "idle" | "running" | "blocked" | "done";
-
-export interface AgentState {
-  name: AgentName;
-  displayName: string;
-  status: AgentStatus;
-  currentTP: string | null;
-  mode: string | null;
-  startedAt: number | null;
-  pid: number | null;
-  color: string;
-}
-
-export type TaskStatus =
-  | "draft"
-  | "in-progress"
-  | "review-needed"
-  | "done"
-  | "blocked";
-
-export interface Task {
-  id: string;
-  title: string;
-  agent: string;
-  status: TaskStatus;
-  created: string;
-  updated: string;
-}
+export type {
+  AgentEntity as AgentState,
+  AgentHealth,
+  AgentMode,
+  AgentName,
+  AgentStatus,
+} from "../server/core/entities/Agent";
+export { AGENT_MODES } from "../server/core/entities/Agent";
+export type {
+  CommandResult,
+  OdinAction,
+  OdinMessage,
+} from "../server/core/entities/Message";
+export type {
+  CompletedTask,
+  CreateTaskInput,
+  TaskComplexity,
+  TaskDetail,
+  TaskEntity as Task,
+  TaskStatus,
+  UpdateTaskInput,
+} from "../server/core/entities/Task";
+import type { AgentName } from "../server/core/entities/Agent";
+import type { TaskStatus as SharedTaskStatus } from "../server/core/entities/Task";
 
 export interface DependencyGraphNode {
   id: string;
   dependsOn: string[];
-  status: TaskStatus;
+  status: SharedTaskStatus;
 }
 
 export interface DependencyGraphResponse {
@@ -47,26 +41,4 @@ export interface LogEntry {
   agent: AgentName | "system";
   message: string;
   level: "info" | "warn" | "error";
-}
-
-export interface OdinAction {
-  id: string;
-  label: string;
-  type: "approve" | "reject" | "custom";
-  payload?: Record<string, unknown>;
-}
-
-export interface OdinMessage {
-  id: string;
-  timestamp: number;
-  role: "user" | "odin";
-  type: "command" | "response" | "approval_request" | "notification" | "progress";
-  content: string;
-  actions?: OdinAction[];
-  metadata?: {
-    tp?: string;
-    agent?: string;
-    skill?: string;
-    severity?: "info" | "warning" | "critical";
-  };
 }

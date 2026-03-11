@@ -4,6 +4,7 @@ import path from "path";
 import { WebSocket } from "ws";
 import { getAgentStates } from "../domain/agents/agent-state";
 import { parseIndex } from "../domain/tasks/task-parser";
+import type { Container } from "../di/container";
 import { createLogger } from "../infra/logger";
 import type { AsgardWatcher } from "../infra/watcher";
 import type { AuthorizeWebSocket, Broadcast } from "./ws-manager";
@@ -14,7 +15,7 @@ export async function handleStatusConnection(
   ws: WebSocket,
   request: http.IncomingMessage,
   watcher: AsgardWatcher,
-  asgardRoot: string,
+  container: Container,
   authorizeWs: AuthorizeWebSocket,
   _broadcast: Broadcast
 ) {
@@ -24,7 +25,7 @@ export async function handleStatusConnection(
 
   ws.send(JSON.stringify({ type: "connected", data: { message: "Status stream connected" } }));
   try {
-    const indexPath = path.join(asgardRoot, "artifacts", "INDEX.md");
+    const indexPath = path.join(container.asgardRoot, "artifacts", "INDEX.md");
     let content = "";
     try {
       content = await fs.readFile(indexPath, "utf-8");
@@ -34,7 +35,7 @@ export async function handleStatusConnection(
       }
     }
     const tasks = parseIndex(content);
-    const agents = await getAgentStates(asgardRoot, tasks);
+    const agents = await getAgentStates(container.agentRepository, tasks);
     if (ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ type: "status", data: agents }));
       ws.send(JSON.stringify({ type: "chronicle", data: tasks }));

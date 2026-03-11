@@ -1,19 +1,14 @@
 import { Router, type Request, type Response } from "express";
 import { createLogger } from "../infra/logger";
-import {
-  getMessages,
-  processCommand,
-  processApproval,
-  saveHistory,
-} from "../domain/odin/odin-channel";
+import type { OdinChannel } from "../domain/odin/odin-channel";
 
-export function createOdinRouter(asgardRoot: string): Router {
+export function createOdinRouter(odinChannel: OdinChannel): Router {
   const router = Router();
   const log = createLogger({ component: "OdinRoutes" });
 
   router.get("/api/odin/messages", (req: Request, res: Response) => {
     const limit = parseInt((req.query.limit as string) || "50", 10);
-    res.json({ messages: getMessages(limit) });
+    res.json({ messages: odinChannel.getMessages(limit) });
   });
 
   router.post("/api/odin/command", async (req: Request, res: Response) => {
@@ -25,8 +20,8 @@ export function createOdinRouter(asgardRoot: string): Router {
 
     try {
       log.info({ content }, "Odin command received");
-      const result = await processCommand(content, asgardRoot);
-      await saveHistory(asgardRoot);
+      const result = await odinChannel.processCommand(content);
+      await odinChannel.saveHistory();
       res.json(result);
     } catch (err: unknown) {
       log.error({ err }, "Odin command failed");
@@ -47,8 +42,8 @@ export function createOdinRouter(asgardRoot: string): Router {
 
     try {
       log.info({ approvalId, approved }, "Odin approval response");
-      const result = await processApproval(approvalId, approved, asgardRoot);
-      await saveHistory(asgardRoot);
+      const result = await odinChannel.processApproval(approvalId, approved);
+      await odinChannel.saveHistory();
       res.json(result);
     } catch (err: unknown) {
       log.error({ err }, "Odin approval failed");

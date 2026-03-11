@@ -4,9 +4,10 @@ import express from "express";
 import next from "next";
 import { getToken } from "./infra/auth";
 import { createRouter } from "./routes/index";
+import { createContainer } from "./di/container";
 import { AsgardWatcher } from "./infra/watcher";
 import { createLogger } from "./infra/logger";
-import { loadHistory } from "./domain/odin/odin-channel";
+import { createOdinChannel } from "./domain/odin/odin-channel";
 import { setupWebSockets } from "./websocket";
 
 const PORT = parseInt(process.env.PORT || "7777", 10);
@@ -18,10 +19,15 @@ async function main() {
   const nextApp = next({ dev, dir: "./dashboard" });
   const handle = nextApp.getRequestHandler();
   await nextApp.prepare();
+  const container = createContainer(ASGARD_ROOT);
+  const odinChannel = createOdinChannel({
+    messageRepository: container.messageRepository,
+    skillRegistry: container.skillRegistry,
+  });
 
   const app = express();
   app.use(express.json());
-  app.use(createRouter(ASGARD_ROOT));
+  app.use(createRouter(container, odinChannel));
 
   app.all("/{*path}", (req, res) => {
     return handle(req, res);
@@ -29,11 +35,10 @@ async function main() {
 
   const server = http.createServer(app);
 
-  const watcher = new AsgardWatcher(ASGARD_ROOT);
-  setupWebSockets(server, watcher, ASGARD_ROOT);
+  const watcher = new AsgardWatcher(container);
+  setupWebSockets(server, watcher, container, odinChannel);
 
-  // Load Odin chat history
-  await loadHistory(ASGARD_ROOT);
+  await odinChannel.loadHistory();
 
   await watcher.start();
 

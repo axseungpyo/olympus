@@ -3,6 +3,8 @@ import os from "os";
 import path from "path";
 import express from "express";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { createContainer } from "../di/container";
+import { createOdinChannel } from "../domain/odin/odin-channel";
 import { authMiddleware, getToken, validateToken } from "../infra/auth";
 import { createRouter } from "../routes";
 
@@ -132,7 +134,12 @@ describe("auth", () => {
 
   it("rejects requests without a bearer token and keeps /api/health public", async () => {
     const app = express();
-    app.use(createRouter(rootDir));
+    const container = createContainer(rootDir);
+    const odinChannel = createOdinChannel({
+      messageRepository: container.messageRepository,
+      skillRegistry: container.skillRegistry,
+    });
+    app.use(createRouter(container, odinChannel));
 
     const statusResponse = await dispatchRequest(app, "/api/status");
     const healthResponse = await dispatchRequest(app, "/api/health");

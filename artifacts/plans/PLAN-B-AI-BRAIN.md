@@ -5,9 +5,54 @@
 >
 > **Track**: Plan B (AI 두뇌) — [Plan A (대시보드 기능)](./PLAN-A-CONTROL-PANEL.md)와 병렬 진행
 
-**작성일**: 2026-03-11
-**기반 버전**: v0.4.0
+**작성일**: 2026-03-11 (Updated: 2026-03-12 — Clean Architecture 기반 재설계)
+**기반 버전**: v0.5.4 (Plan C 완료)
 **목표 버전**: v1.0.0
+
+---
+
+## 0. Clean Architecture 재설계 (2026-03-12 추가)
+
+### 0.1 현재 구조의 문제점
+
+Plan C에서 domain/infra/routes/websocket 분리를 완료했으나, 핵심적인 Clean Architecture 원칙이 미적용:
+
+1. **domain/ 내부에서 직접 fs 사용** → Repository 인터페이스 없음
+2. **routes가 domain을 직접 import** → Use Case 레이어 없음
+3. **odin-channel이 모든 책임을 보유** → Skill 매칭 + 승인 + 실행 + 영속화 혼재
+4. **DI 미적용** → 테스트 시 모킹 불가, 구현 교체 불가
+
+### 0.2 목표 구조 (Dependency Rule 준수)
+
+```
+src/yggdrasil/server/
+├── core/                       ← 순수 도메인 (외부 의존 제로)
+│   ├── entities/               ← 도메인 모델
+│   ├── ports/                  ← 인터페이스 정의 (Dependency Inversion)
+│   ├── use-cases/              ← 애플리케이션 비즈니스 규칙
+│   └── events/                 ← 도메인 이벤트
+│
+├── adapters/                   ← 인터페이스 어댑터
+│   ├── repositories/           ← ports/ 구현 (FileSystem)
+│   ├── gateways/               ← 외부 시스템 연결 (LLM, Process)
+│   └── controllers/            ← HTTP/WS 컨트롤러 (routes/ 대체)
+│
+├── infra/                      ← 기존 유지 (auth, logger, watcher)
+├── websocket/                  ← 기존 유지
+├── di/container.ts             ← Simple Factory DI
+└── index.ts                    ← 엔트리포인트
+```
+
+### 0.3 수정된 Phase 계획 (Clean Architecture 우선)
+
+| Phase | TP | 제목 | 초점 |
+|-------|-----|------|------|
+| B0-1 | TP-020 | Core Domain + Repository Pattern | Entities, Ports, FileSystem Adapters |
+| B0-2 | TP-021 | Use Case Layer + Controller Refactoring | Use Cases, DI Container, 얇은 Controllers |
+| B1 | TP-022 | AI Brain — LLM Gateway + Smart Odin | ILLMGateway, Claude API 연동, AI 명령 처리 |
+| B2 | TP-023 | Event Bus + Domain Events | IEventBus, Watcher→EventBus, 실시간 동기화 |
+
+> B0 (Clean Architecture Foundation)가 선행되어야 B1~B5의 AI Brain을 깔끔하게 추가할 수 있다.
 
 ---
 

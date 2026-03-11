@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import { createLogger } from "../infra/logger";
+import type { Container } from "../di/container";
 import {
   listTasks,
   getTask,
@@ -10,13 +11,13 @@ import {
 } from "../domain/tasks/task-manager";
 import type { TaskStatus } from "../../shared/types";
 
-export function createTaskRouter(asgardRoot: string): Router {
+export function createTaskRouter(container: Container): Router {
   const router = Router();
   const log = createLogger({ component: "TaskRoutes" });
 
   router.get("/api/tasks", async (_req: Request, res: Response) => {
     try {
-      const data = await listTasks(asgardRoot);
+      const data = await listTasks(container.taskRepository);
       res.json(data);
     } catch (err: unknown) {
       log.error({ err }, "/api/tasks error");
@@ -33,7 +34,7 @@ export function createTaskRouter(asgardRoot: string): Router {
       return;
     }
     try {
-      const result = await createTask(asgardRoot, {
+      const result = await createTask(container.taskRepository, {
         title: body.title,
         objective: body.objective,
         agent: body.agent as "codex" | "gemini",
@@ -58,7 +59,7 @@ export function createTaskRouter(asgardRoot: string): Router {
       return;
     }
     try {
-      const task = await getTask(asgardRoot, (id as string).toUpperCase());
+      const task = await getTask(container.taskRepository, (id as string).toUpperCase());
       if (!task) {
         res.status(404).json({ error: "Task not found" });
         return;
@@ -81,7 +82,11 @@ export function createTaskRouter(asgardRoot: string): Router {
     }
 
     try {
-      const task = await updateTaskStatus(asgardRoot, (id as string).toUpperCase(), status as TaskStatus);
+      const task = await updateTaskStatus(
+        container.taskRepository,
+        (id as string).toUpperCase(),
+        status as TaskStatus,
+      );
       if (!task) {
         res.status(404).json({ error: "Task not found in active tasks" });
         return;
@@ -96,7 +101,7 @@ export function createTaskRouter(asgardRoot: string): Router {
   router.delete("/api/tasks/:id", async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-      const result = await deleteTask(asgardRoot, (id as string).toUpperCase());
+      const result = await deleteTask(container.taskRepository, (id as string).toUpperCase());
       res.status(result.success ? 200 : 400).json(result);
     } catch (err: unknown) {
       log.error({ err, id }, "Task delete error");

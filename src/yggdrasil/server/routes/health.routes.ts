@@ -3,12 +3,13 @@ import { parseIndex } from "../domain/tasks/task-parser";
 import { getAgentStates } from "../domain/agents/agent-state";
 import { createLogger } from "../infra/logger";
 import { collectMetrics } from "../infra/metrics";
+import type { Container } from "../di/container";
 import fs from "fs/promises";
 import path from "path";
 
-export function createHealthRouter(asgardRoot: string): Router {
+export function createHealthRouter(container: Container): Router {
   const router = Router();
-  const artifactsDir = path.resolve(asgardRoot, "artifacts");
+  const artifactsDir = path.resolve(container.asgardRoot, "artifacts");
   const log = createLogger({ component: "HealthRoutes" });
 
   async function readIndexFile(): Promise<string> {
@@ -30,7 +31,7 @@ export function createHealthRouter(asgardRoot: string): Router {
     try {
       const content = await readIndexFile();
       const tasks = parseIndex(content);
-      const agents = await getAgentStates(asgardRoot, tasks);
+      const agents = await getAgentStates(container.agentRepository, tasks);
       res.json({
         agents,
         activeTasks: tasks.filter(
@@ -46,7 +47,7 @@ export function createHealthRouter(asgardRoot: string): Router {
 
   router.get("/api/metrics", async (_req: Request, res: Response) => {
     try {
-      const metrics = await collectMetrics(asgardRoot);
+      const metrics = await collectMetrics(container.asgardRoot);
       res.json(metrics);
     } catch (err: unknown) {
       log.error({ err }, "/api/metrics error");
