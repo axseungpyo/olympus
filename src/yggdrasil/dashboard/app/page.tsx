@@ -30,6 +30,7 @@ import QuickActions from "../components/QuickActions";
 import DependencyView from "../components/DependencyView";
 import ApiKeysModal from "../components/ApiKeysModal";
 import CommandBar from "../components/CommandBar";
+import TaskBoard from "../components/TaskBoard";
 import type { DependencyGraphResponse } from "../lib/types";
 
 const WS_BASE = getWsBase();
@@ -45,7 +46,7 @@ const defaultAgents: AgentState[] = AGENT_NAMES.map((name) => ({
   color: AGENT_CONFIG[name].color,
 }));
 
-type ViewMode = "overview" | "terminals" | "flow" | "stats" | "skills";
+type ViewMode = "overview" | "tasks" | "terminals" | "flow" | "stats" | "skills";
 
 export default function DashboardPage() {
   const [agents, setAgents] = useState<AgentState[]>(defaultAgents);
@@ -219,7 +220,7 @@ export default function DashboardPage() {
 
         {/* View Tabs */}
         <div className="flex items-center gap-1 border-b border-border/60 mb-8">
-          {(["overview", "terminals", "flow", "stats", "skills"] as const).map((mode) => (
+          {(["overview", "tasks", "terminals", "flow", "stats", "skills"] as const).map((mode) => (
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
@@ -236,6 +237,8 @@ export default function DashboardPage() {
 
         {viewMode === "skills" ? (
           <SkillsPanel />
+        ) : viewMode === "tasks" ? (
+          <TaskBoard tasks={tasks} onDocClick={handleDocClick} />
         ) : viewMode === "flow" ? (
           <div className="space-y-6">
             <section>

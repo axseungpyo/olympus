@@ -25,7 +25,15 @@ import {
   getAgentHealth,
   AGENT_MODES,
 } from "./control";
-import type { AgentName } from "../dashboard/lib/types";
+import {
+  listTasks,
+  getTask,
+  createTask,
+  updateTaskStatus,
+  deleteTask,
+  type CreateTaskInput,
+} from "./task-manager";
+import type { AgentName, TaskStatus } from "../dashboard/lib/types";
 import { AGENT_NAMES } from "../dashboard/lib/constants";
 
 const ALLOWED_SKILLS = ["status", "validate"] as const;
@@ -470,6 +478,103 @@ export function createRouter(asgardRoot: string): Router {
   // GET /api/agent/modes
   router.get("/api/agent/modes", (_req: Request, res: Response) => {
     res.json(AGENT_MODES);
+  });
+
+  // ── Task Management (Phase 3) ──
+
+  // GET /api/tasks
+  router.get("/api/tasks", async (_req: Request, res: Response) => {
+    try {
+      const data = await listTasks(asgardRoot);
+      res.json(data);
+    } catch (err: unknown) {
+      log.error({ err }, "/api/tasks error");
+      res.status(500).json({ error: "Failed to list tasks" });
+    }
+  });
+
+  // GET /api/tasks/:id
+  router.get("/api/tasks/:id", async (req: Request, res: Response) => {
+    const { id } = req.params;
+    if (!/^TP-\d{3}$/i.test(id as string)) {
+      res.status(400).json({ error: "Invalid task ID format. Expected TP-NNN" });
+      return;
+    }
+    try {
+      const task = await getTask(asgardRoot, (id as string).toUpperCase());
+      if (!task) {
+        res.status(404).json({ error: "Task not found" });
+        return;
+      }
+      res.json(task);
+    } catch (err: unknown) {
+      log.error({ err, id }, "/api/tasks/:id error");
+      res.status(500).json({ error: "Failed to get task" });
+    }
+  });
+
+  // POST /api/tasks
+  router.post("/api/tasks", async (req: Request, res: Response) => {
+    const body = req.body as Partial<CreateTaskInput>;
+    if (!body.title || !body.objective || !body.agent || !body.acceptanceCriteria?.length) {
+      res.status(400).json({
+        error: "Required fields: title, objective, agent (codex|gemini), acceptanceCriteria (string[])",
+      });
+      return;
+    }
+    try {
+      const result = await createTask(asgardRoot, {
+        title: body.title,
+        objective: body.objective,
+        agent: body.agent as "codex" | "gemini",
+        complexity: body.complexity ?? "moderate",
+        scopeIn: body.scopeIn ?? [],
+        scopeOut: body.scopeOut ?? [],
+        acceptanceCriteria: body.acceptanceCriteria,
+        dependsOn: body.dependsOn,
+        notes: body.notes,
+      });
+      res.status(201).json(result);
+    } catch (err: unknown) {
+      log.error({ err }, "/api/tasks POST error");
+      res.status(500).json({ error: "Failed to create task" });
+    }
+  });
+
+  // PUT /api/tasks/:id/status
+  router.put("/api/tasks/:id/status", async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status } = (req.body ?? {}) as { status?: string };
+
+    const validStatuses: TaskStatus[] = ["draft", "in-progress", "review-needed", "done", "blocked"];
+    if (!status || !validStatuses.includes(status as TaskStatus)) {
+      res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(", ")}` });
+      return;
+    }
+
+    try {
+      const task = await updateTaskStatus(asgardRoot, (id as string).toUpperCase(), status as TaskStatus);
+      if (!task) {
+        res.status(404).json({ error: "Task not found in active tasks" });
+        return;
+      }
+      res.json(task);
+    } catch (err: unknown) {
+      log.error({ err, id, status }, "Task status update error");
+      res.status(500).json({ error: "Failed to update task status" });
+    }
+  });
+
+  // DELETE /api/tasks/:id
+  router.delete("/api/tasks/:id", async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+      const result = await deleteTask(asgardRoot, (id as string).toUpperCase());
+      res.status(result.success ? 200 : 400).json(result);
+    } catch (err: unknown) {
+      log.error({ err, id }, "Task delete error");
+      res.status(500).json({ error: "Failed to delete task" });
+    }
   });
 
   // ── Odin Command Channel ──
