@@ -314,7 +314,7 @@ export default function DashboardPage() {
       </main>
 
       <footer className="border-t border-border/40 px-6 py-4 text-center mt-10 mb-14">
-        <span className="text-[13px] text-slate-500 font-mono tracking-wide">yggdrasil v0.4.0</span>
+        <span className="text-[13px] text-slate-500 font-mono tracking-wide">yggdrasil v0.4.1</span>
       </footer>
 
       {selectedDoc && (

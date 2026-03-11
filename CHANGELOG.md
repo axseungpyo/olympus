@@ -3,6 +3,23 @@
 이 프로젝트의 주요 변경사항을 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)
 
+## [0.4.1] - 2026-03-11
+
+### Added
+- **Agent Control (Phase 2)** — 대시보드에서 에이전트 시작/중지/모드 변경
+  - `server/control.ts` — 에이전트 프로세스 관리 모듈
+    - `startAgent()` — delegate 스크립트 호출, PID 추적, Lock 관리
+    - `stopAgent()` — SIGTERM/SIGKILL 프로세스 종료, PID 정리
+    - `getAgentHealth()` — 개별 에이전트 상태 + 리소스 조회
+  - REST API 추가:
+    - `POST /api/agent/:name/start` — 에이전트 시작 (TP, mode 지정)
+    - `POST /api/agent/:name/stop` — 에이전트 중지
+    - `GET /api/agent/:name/health` — 상세 상태 조회
+    - `GET /api/agent/modes` — 에이전트별 모드 목록
+  - `AgentCard.tsx` 확장 — 접이식 제어 패널 (TP 입력, 모드 셀렉터, Start/Stop)
+  - 에이전트 모드 설정: Brokkr(Spark/Anvil/Mjolnir/Ragnarok), Heimdall(Glint/Bifrost/Gjallarhorn), Loki(Sketch/Canvas)
+  - Odin 채널: delegate/stop 스킬이 실제 프로세스 제어와 연결
+
 ## [0.4.0] - 2026-03-11
 
 ### Added
