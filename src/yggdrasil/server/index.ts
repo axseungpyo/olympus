@@ -4,7 +4,7 @@ import express from "express";
 import { WebSocketServer, WebSocket } from "ws";
 import next from "next";
 import { getToken, validateToken } from "./auth";
-import { createRouter } from "./routes";
+import { createRouter } from "./routes/index";
 import { AsgardWatcher } from "./watcher";
 import { parseIndex } from "./parser";
 import { getAgentStates } from "./agents";
