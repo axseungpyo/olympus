@@ -3,6 +3,30 @@
 이 프로젝트의 주요 변경사항을 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)
 
+## [0.5.0] - 2026-03-11
+
+### Added
+- **Control Dashboard (Phase 5)** — 통합 관제 대시보드 완성
+  - `ControlView.tsx` — Agent Control Grid + Task Pipeline + Activity Feed
+  - "control" 탭: 모든 에이전트와 태스크를 한 화면에서 관제
+  - 에이전트 인라인 시작/중지/모드 변경 컨트롤
+  - Task Pipeline 시각화 (Draft → Running → Review → Blocked)
+  - Activity Feed: 실시간 로그 스트림
+
+- **MCP Manager (Phase 4)** — 서버사이드 MCP 설정 관리
+  - `mcp-manager.ts` — MCP 서버 CRUD + 에이전트별 접근 권한
+  - `artifacts/config/mcp-servers.json`에 설정 영속화
+  - `syncToClaudeSettings()` — .claude/settings.json 자동 동기화
+  - REST API: GET/POST/PUT/DELETE /api/mcp/servers, POST /api/mcp/sync
+
+- **Task Management (Phase 3)** — 대시보드에서 TP CRUD
+  - `task-manager.ts` — TP 생성/조회/상태변경/삭제 + INDEX.md 원자적 동기화
+  - `TaskBoard.tsx` — 칸반 보드 (4열: Draft/In Progress/Review/Done)
+  - `TaskEditor.tsx` — Rune(TP) 생성 폼 (title, objective, agent, complexity, scope, AC)
+  - Task 상세 모달: TP/RP 내용 조회 + Approve/Assign 버튼
+  - "tasks" 탭 추가
+  - REST API: GET/POST /api/tasks, GET /api/tasks/:id, PUT /api/tasks/:id/status, DELETE /api/tasks/:id
+
 ## [0.4.1] - 2026-03-11
 
 ### Added
