@@ -7,6 +7,7 @@ import type { IEventBus } from "../../ports/IEventBus";
 import type { IMessageRepository } from "../../ports/IMessageRepository";
 import type { ISkillRegistry } from "../../ports/ISkillRegistry";
 import type { ITaskRepository } from "../../ports/ITaskRepository";
+import type { IToolExecutor } from "../../ports/IToolExecutor";
 import { ContextBuilder } from "./ContextBuilder";
 
 const ODIN_TOOLS: LLMToolDefinition[] = [
@@ -72,6 +73,63 @@ const ODIN_TOOLS: LLMToolDefinition[] = [
       required: ["question"],
     },
   },
+  {
+    name: "read_file",
+    description: "프로젝트 파일을 읽는다 (최대 10,000자)",
+    input_schema: {
+      type: "object",
+      properties: {
+        path: { type: "string", description: "프로젝트 루트 기준 상대 경로" },
+      },
+      required: ["path"],
+    },
+  },
+  {
+    name: "write_file",
+    description: "파일을 생성하거나 수정한다",
+    input_schema: {
+      type: "object",
+      properties: {
+        path: { type: "string", description: "프로젝트 루트 기준 상대 경로" },
+        content: { type: "string", description: "파일 내용" },
+      },
+      required: ["path", "content"],
+    },
+  },
+  {
+    name: "list_directory",
+    description: "디렉토리 내용을 나열한다",
+    input_schema: {
+      type: "object",
+      properties: {
+        path: { type: "string", description: "프로젝트 루트 기준 상대 경로 (기본: .)" },
+      },
+    },
+  },
+  {
+    name: "search_codebase",
+    description: "코드베이스에서 텍스트 패턴을 검색한다",
+    input_schema: {
+      type: "object",
+      properties: {
+        pattern: { type: "string", description: "검색할 텍스트 또는 정규표현식" },
+        path: { type: "string", description: "검색 시작 디렉토리 (기본: .)" },
+        glob: { type: "string", description: "파일 필터 (예: *.ts)" },
+      },
+      required: ["pattern"],
+    },
+  },
+  {
+    name: "review_saga",
+    description: "Saga(RP)를 읽고 Acceptance Criteria를 확인한다",
+    input_schema: {
+      type: "object",
+      properties: {
+        rp_id: { type: "string", description: "RP ID (예: RP-024)" },
+      },
+      required: ["rp_id"],
+    },
+  },
 ];
 
 export class ProcessCommandUseCase {
@@ -83,13 +141,14 @@ export class ProcessCommandUseCase {
     private readonly approvalStore: IApprovalStore,
     private readonly llmGateway: ILLMGateway,
     private readonly regexFallbackGateway: ILLMGateway,
+    private readonly toolExecutors: IToolExecutor[],
     taskRepository: ITaskRepository,
     agentRepository: IAgentRepository,
-    asgardRoot: string,
+    private readonly projectRoot: string,
     private readonly eventBus?: IEventBus,
   ) {
     this.contextBuilder = new ContextBuilder(
-      asgardRoot,
+      projectRoot,
       taskRepository,
       agentRepository,
       messageRepository,
@@ -173,16 +232,38 @@ export class ProcessCommandUseCase {
       return;
     }
 
-    if (toolCall.name === "get_status") {
-      await this.executeSkill("status", "", messages);
+    if (this.isApprovalRequired(toolCall.name)) {
+      this.handleApprovalToolCall(toolCall, messages);
       return;
     }
 
-    if (toolCall.name === "validate_task") {
-      await this.executeSkill("validate", this.readString(toolCall.input, "tp_id") || this.readString(toolCall.input, "tpId"), messages);
+    const executor = this.toolExecutors.find((entry) => entry.canHandle(toolCall.name));
+    if (executor) {
+      const result = await executor.execute(toolCall, this.projectRoot);
+      messages.push(this.messageRepository.addMessage({
+        role: "odin",
+        type: "response",
+        content: result.success ? result.output : `실행 실패: ${result.error ?? "Unknown error"}`,
+        metadata: {
+          tool: toolCall.name,
+          skill: result.metadata?.skill,
+        },
+      }));
       return;
     }
 
+    messages.push(this.messageRepository.addMessage({
+      role: "odin",
+      type: "response",
+      content: `지원하지 않는 도구 호출입니다: ${toolCall.name}`,
+    }));
+  }
+
+  private isApprovalRequired(toolName: string): boolean {
+    return toolName === "delegate_task" || toolName === "stop_agent" || toolName === "ask_user";
+  }
+
+  private handleApprovalToolCall(toolCall: LLMToolCall, messages: CommandResult["messages"]): void {
     if (toolCall.name === "delegate_task") {
       const tpId = this.readString(toolCall.input, "tp_id") || this.readString(toolCall.input, "tpId");
       const requestedAgent = (this.readString(toolCall.input, "agent") || "brokkr").toLowerCase();
@@ -197,14 +278,6 @@ export class ProcessCommandUseCase {
     if (toolCall.name === "stop_agent") {
       const agent = this.readString(toolCall.input, "agent").toLowerCase();
       this.requestApproval("stop-agent", agent, "에이전트를 중지합니다.", messages);
-      return;
-    }
-
-    if (toolCall.name === "create_task") {
-      const title = this.readString(toolCall.input, "title");
-      const objective = this.readString(toolCall.input, "objective");
-      const agent = this.readString(toolCall.input, "agent");
-      await this.executeSkill("plan", [title, objective, agent].filter(Boolean).join(" | "), messages);
       return;
     }
 
@@ -223,12 +296,6 @@ export class ProcessCommandUseCase {
       }));
       return;
     }
-
-    messages.push(this.messageRepository.addMessage({
-      role: "odin",
-      type: "response",
-      content: `지원하지 않는 도구 호출입니다: ${toolCall.name}`,
-    }));
   }
 
   private async executeSkill(skill: string, args: string, messages: CommandResult["messages"]): Promise<CommandResult> {

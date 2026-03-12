@@ -3,6 +3,7 @@ import { COMMAND_PROCESSED_EVENT } from "../core/events/CommandProcessed";
 import type { DomainEvent } from "../core/events/DomainEvent";
 import { InMemoryApprovalStore } from "../adapters/stores/InMemoryApprovalStore";
 import { RegexFallbackGateway } from "../adapters/gateways/RegexFallbackGateway";
+import { SkillToolExecutor } from "../adapters/tools/SkillToolExecutor";
 import { ProcessCommandUseCase } from "../core/use-cases/odin/ProcessCommandUseCase";
 import type { AgentEntity, AgentHealth, AgentName } from "../core/entities/Agent";
 import type { SkillDefinition, SkillMatch } from "../core/entities/Skill";
@@ -140,6 +141,7 @@ describe("ProcessCommandUseCase", () => {
       new InMemoryApprovalStore(),
       new StubGateway(false, async () => ({ content: "unused", stopReason: "end_turn" })),
       new RegexFallbackGateway(skillRegistry),
+      [new SkillToolExecutor(skillRegistry)],
       new StubTaskRepository(),
       new StubAgentRepository(),
       "/tmp/asgard",
@@ -174,6 +176,7 @@ describe("ProcessCommandUseCase", () => {
         stopReason: "tool_use",
       })),
       regexGateway,
+      [new SkillToolExecutor(skillRegistry)],
       new StubTaskRepository(),
       new StubAgentRepository(),
       "/tmp/asgard",

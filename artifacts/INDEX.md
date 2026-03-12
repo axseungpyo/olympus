@@ -14,6 +14,7 @@ Last updated: 2026-03-11
 | TP-021 | Use Case Layer + Controller Refactoring (Plan B0-2) | codex | done | 2026-03-12 | 2026-03-12 |
 | TP-022 | AI Brain — LLM Gateway + Smart Odin (Plan B1) | codex | done | 2026-03-12 | 2026-03-12 |
 | TP-023 | Event Bus + Domain Events (Plan B2) | codex | done | 2026-03-12 | 2026-03-12 |
+| TP-024 | Tool Use — 파일/CLI 직접 조작 + Tool Executor 패턴 (Plan B3) | codex | done | 2026-03-12 | 2026-03-12 |
 
 ## Completed Tasks
 
@@ -35,4 +36,4 @@ Last updated: 2026-03-11
 | TP-004 | 랜딩 페이지 스크린샷 분석 및 UI 클론 | gemini | 2026-03-09 |
 | TP-005 | API 문서 자동 생성 (Swagger/OpenAPI) | codex | 2026-03-09 |
 
-## Next TP Number: TP-024
+## Next TP Number: TP-025

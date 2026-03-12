@@ -6,8 +6,10 @@ import type { ILLMGateway } from "../core/ports/ILLMGateway";
 import type { IProcessGateway } from "../core/ports/IProcessGateway";
 import type { ISkillRegistry } from "../core/ports/ISkillRegistry";
 import type { ITaskRepository } from "../core/ports/ITaskRepository";
+import type { IToolExecutor } from "../core/ports/IToolExecutor";
 import { AgentController } from "../adapters/controllers/AgentController";
 import { DocumentController } from "../adapters/controllers/DocumentController";
+import { NodeFileSystem } from "../adapters/filesystem/NodeFileSystem";
 import { HealthController } from "../adapters/controllers/HealthController";
 import { McpController } from "../adapters/controllers/McpController";
 import { OdinController } from "../adapters/controllers/OdinController";
@@ -20,6 +22,8 @@ import { InProcessEventBus } from "../adapters/events/InProcessEventBus";
 import { FileMessageRepository } from "../adapters/repositories/FileMessageRepository";
 import { FileTaskRepository } from "../adapters/repositories/FileTaskRepository";
 import { FileSkillRegistry } from "../adapters/skills/FileSkillRegistry";
+import { FileSystemToolExecutor } from "../adapters/tools/FileSystemToolExecutor";
+import { SkillToolExecutor } from "../adapters/tools/SkillToolExecutor";
 import { AgentProcessRegistry } from "../adapters/stores/AgentProcessRegistry";
 import { InMemoryApprovalStore } from "../adapters/stores/InMemoryApprovalStore";
 import { GetAgentStatusUseCase } from "../core/use-cases/agent/GetAgentStatusUseCase";
@@ -41,6 +45,7 @@ export interface Container {
   approvalStore: IApprovalStore;
   processGateway: IProcessGateway;
   skillRegistry: ISkillRegistry;
+  toolExecutors: IToolExecutor[];
   llmGateway: ILLMGateway;
   regexFallbackGateway: ILLMGateway;
   processRegistry: IAgentProcessRegistry;
@@ -89,12 +94,17 @@ export function createContainer(asgardRoot: string): Container {
   );
   const llmGateway = new ClaudeLLMGateway(asgardRoot);
   const regexFallbackGateway = new RegexFallbackGateway(skillRegistry);
+  const nodeFileSystem = new NodeFileSystem();
+  const fileSystemToolExecutor = new FileSystemToolExecutor(nodeFileSystem, asgardRoot);
+  const skillToolExecutor = new SkillToolExecutor(skillRegistry);
+  const toolExecutors: IToolExecutor[] = [fileSystemToolExecutor, skillToolExecutor];
   const processCommandUseCase = new ProcessCommandUseCase(
     messageRepository,
     skillRegistry,
     approvalStore,
     llmGateway,
     regexFallbackGateway,
+    toolExecutors,
     taskRepository,
     agentRepository,
     asgardRoot,
@@ -115,6 +125,7 @@ export function createContainer(asgardRoot: string): Container {
     approvalStore,
     processGateway,
     skillRegistry,
+    toolExecutors,
     llmGateway,
     regexFallbackGateway,
     processRegistry,

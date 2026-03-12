@@ -16,6 +16,7 @@ export interface OdinMessage {
     tp?: string;
     agent?: string;
     skill?: string;
+    tool?: string;
     severity?: "info" | "warning" | "critical";
   };
 }
