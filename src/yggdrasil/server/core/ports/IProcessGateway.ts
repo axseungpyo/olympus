@@ -3,6 +3,7 @@ export interface SpawnResult {
   kill(signal?: string): boolean;
   onExit(listener: (code: number | null) => void): void;
   onError(listener: (error: Error) => void): void;
+  onStdout(listener: (data: string) => void): void;
   unref(): void;
 }
 

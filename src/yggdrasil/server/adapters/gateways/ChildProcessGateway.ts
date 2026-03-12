@@ -21,6 +21,12 @@ class ChildProcessSpawnResult implements SpawnResult {
     this.child.on("error", listener);
   }
 
+  onStdout(listener: (data: string) => void): void {
+    this.child.stdout?.on("data", (chunk: Buffer | string) => {
+      listener(chunk.toString());
+    });
+  }
+
   unref(): void {
     this.child.unref();
   }

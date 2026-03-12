@@ -1,4 +1,5 @@
 import http from "http";
+import { AGENT_PROGRESS_EVENT } from "../core/events/AgentProgress";
 import { PLAN_PROGRESS_EVENT } from "../core/events/PlanProgress";
 import type { IEventBus } from "../core/ports/IEventBus";
 import type { Container } from "../di/container";
@@ -51,6 +52,13 @@ export function setupWebSockets(
   eventBus.subscribe(PLAN_PROGRESS_EVENT, (event) => {
     broadcast(wssStatus, {
       type: "plan_progress",
+      data: event.payload,
+    });
+  });
+
+  eventBus.subscribe(AGENT_PROGRESS_EVENT, (event) => {
+    broadcast(wssStatus, {
+      type: "agent_progress",
       data: event.payload,
     });
   });

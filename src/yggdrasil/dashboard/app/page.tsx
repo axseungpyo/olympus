@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import type {
   AgentState,
+  AgentProgressPayload,
   Task,
   LogEntry,
   WSMessage,
@@ -34,6 +35,7 @@ import CommandBar from "../components/odin/CommandBar";
 import TaskBoard from "../components/tasks/TaskBoard";
 import ControlView from "../components/agents/ControlView";
 import { AutonomySelector } from "../components/autonomy-selector";
+import { AgentProgress } from "../components/agent-progress";
 import { PlanProgress } from "../components/plan-progress";
 import type { DependencyGraphResponse } from "../lib/types";
 
@@ -58,6 +60,7 @@ export default function DashboardPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null);
   const [planProgress, setPlanProgress] = useState<PlanProgressPayload | null>(null);
+  const [agentProgress, setAgentProgress] = useState<Map<string, AgentProgressPayload>>(new Map());
   const [authToken, setAuthToken] = useState("");
   const [tokenInput, setTokenInput] = useState("");
   const [authReady, setAuthReady] = useState(false);
@@ -155,6 +158,29 @@ export default function DashboardPage() {
     if (msg.type === "status") setAgents(msg.data);
     else if (msg.type === "chronicle") setTasks(msg.data);
     else if (msg.type === "plan_progress") setPlanProgress(msg.data);
+    else if (msg.type === "agent_progress") {
+      setAgentProgress((prev) => {
+        const next = new Map(prev);
+        const key = `${msg.data.agent}-${msg.data.tp}`;
+        next.set(key, msg.data);
+
+        if (msg.data.status !== "running") {
+          window.setTimeout(() => {
+            setAgentProgress((current) => {
+              const currentEntry = current.get(key);
+              if (!currentEntry || currentEntry.timestamp !== msg.data.timestamp) {
+                return current;
+              }
+              const updated = new Map(current);
+              updated.delete(key);
+              return updated;
+            });
+          }, 5000);
+        }
+
+        return next;
+      });
+    }
   }, [statusMsg]);
 
   // Browser notifications for agent state changes
@@ -276,6 +302,8 @@ export default function DashboardPage() {
               <AutonomySelector />
               <PlanProgress message={planProgress} />
             </div>
+
+            <AgentProgress agents={Array.from(agentProgress.values()).sort((a, b) => b.timestamp - a.timestamp)} />
 
             <QuickActions />
 

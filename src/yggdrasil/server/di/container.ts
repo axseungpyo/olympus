@@ -31,6 +31,7 @@ import { SkillToolExecutor } from "../adapters/tools/SkillToolExecutor";
 import { AgentProcessRegistry } from "../adapters/stores/AgentProcessRegistry";
 import { InMemoryApprovalStore } from "../adapters/stores/InMemoryApprovalStore";
 import { GetAgentStatusUseCase } from "../core/use-cases/agent/GetAgentStatusUseCase";
+import { MonitorAgentUseCase } from "../core/use-cases/agent/MonitorAgentUseCase";
 import { StartAgentUseCase } from "../core/use-cases/agent/StartAgentUseCase";
 import { StopAgentUseCase } from "../core/use-cases/agent/StopAgentUseCase";
 import { ProcessApprovalUseCase } from "../core/use-cases/odin/ProcessApprovalUseCase";
@@ -57,6 +58,7 @@ export interface Container {
   processRegistry: IAgentProcessRegistry;
   eventBus: IEventBus;
   settingsRepository: ISettingsRepository;
+  monitorAgentUseCase: MonitorAgentUseCase;
   startAgentUseCase: StartAgentUseCase;
   stopAgentUseCase: StopAgentUseCase;
   getAgentStatusUseCase: GetAgentStatusUseCase;
@@ -87,7 +89,8 @@ export function createContainer(asgardRoot: string): Container {
   const messageRepository = new FileMessageRepository(asgardRoot);
   const approvalStore = new InMemoryApprovalStore();
   const settingsRepository = new InMemorySettingsRepository();
-  const startAgentUseCase = new StartAgentUseCase(taskRepository, agentRepository, processGateway, processRegistry, eventBus);
+  const monitorAgentUseCase = new MonitorAgentUseCase(eventBus);
+  const startAgentUseCase = new StartAgentUseCase(taskRepository, agentRepository, processGateway, processRegistry, eventBus, monitorAgentUseCase);
   const stopAgentUseCase = new StopAgentUseCase(agentRepository, processGateway, processRegistry, eventBus);
   const getAgentStatusUseCase = new GetAgentStatusUseCase(agentRepository, taskRepository);
   const createTaskUseCase = new CreateTaskUseCase(taskRepository, eventBus);
@@ -161,6 +164,7 @@ export function createContainer(asgardRoot: string): Container {
     processRegistry,
     eventBus,
     settingsRepository,
+    monitorAgentUseCase,
     startAgentUseCase,
     stopAgentUseCase,
     getAgentStatusUseCase,

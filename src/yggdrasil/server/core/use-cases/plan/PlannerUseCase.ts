@@ -37,12 +37,14 @@ export class PlannerUseCase {
         description: step.description,
         input: step.input,
         dependsOn: step.dependsOn,
+        parallel: step.parallel,
         requiresApproval: this.shouldRequireApproval({
           order: step.order ?? index + 1,
           action: step.action,
           description: step.description,
           input: step.input,
           dependsOn: step.dependsOn,
+          parallel: step.parallel,
           requiresApproval: step.requiresApproval ?? false,
           status: step.status ?? "pending",
         }),
@@ -69,37 +71,50 @@ export class PlannerUseCase {
     this.touch(plan);
     await this.planRepository.update(plan);
 
-    for (const step of plan.steps) {
-      if (step.status === "completed" || step.status === "skipped") {
+    for (const group of this.groupParallelSteps(plan.steps)) {
+      const runnableSteps: PlanStep[] = [];
+
+      for (const step of group) {
+        if (step.status === "completed" || step.status === "skipped") {
+          continue;
+        }
+
+        if (this.hasUnmetDependencies(plan, step)) {
+          const unmet = step.dependsOn?.filter((dependencyOrder) => {
+            const dependency = plan.steps.find((candidate) => candidate.order === dependencyOrder);
+            return !dependency || dependency.status !== "completed";
+          }) ?? [];
+          step.status = "skipped";
+          step.error = `의존 단계 미완료: ${unmet.join(", ")}`;
+          plan.currentStep = step.order;
+          this.touch(plan);
+          this.publishProgress(plan, step);
+          await this.planRepository.update(plan);
+          continue;
+        }
+
+        if (step.requiresApproval) {
+          plan.currentStep = step.order;
+          plan.status = "paused";
+          this.touch(plan);
+          this.publishProgress(plan, step);
+          await this.planRepository.update(plan);
+          return plan;
+        }
+
+        runnableSteps.push(step);
+      }
+
+      if (runnableSteps.length === 0) {
         continue;
       }
 
-      if (this.hasUnmetDependencies(plan, step)) {
-        const unmet = step.dependsOn?.filter((dependencyOrder) => {
-          const dependency = plan.steps.find((candidate) => candidate.order === dependencyOrder);
-          return !dependency || dependency.status !== "completed";
-        }) ?? [];
-        step.status = "skipped";
-        step.error = `의존 단계 미완료: ${unmet.join(", ")}`;
-        plan.currentStep = step.order;
-        this.touch(plan);
-        this.publishProgress(plan, step);
-        await this.planRepository.update(plan);
-        continue;
-      }
+      const results = runnableSteps.length === 1
+        ? [await this.executeStepWithRetry(plan, runnableSteps[0])]
+        : await Promise.all(runnableSteps.map((step) => this.executeStepWithRetry(plan, step)));
 
-      if (step.requiresApproval) {
-        plan.currentStep = step.order;
-        plan.status = "paused";
-        this.touch(plan);
-        this.publishProgress(plan, step);
-        await this.planRepository.update(plan);
-        return plan;
-      }
-
-      const completed = await this.executeStepWithRetry(plan, step);
       await this.planRepository.update(plan);
-      if (!completed) {
+      if (results.some((completed) => !completed)) {
         return plan;
       }
     }
@@ -118,6 +133,30 @@ export class PlannerUseCase {
 
   async resumePlan(planId: string): Promise<ExecutionPlan> {
     return this.executePlan(planId);
+  }
+
+  private groupParallelSteps(steps: PlanStep[]): PlanStep[][] {
+    const groups: PlanStep[][] = [];
+    let currentGroup: PlanStep[] = [];
+
+    for (const step of steps) {
+      if (step.parallel && currentGroup.length > 0) {
+        currentGroup.push(step);
+        continue;
+      }
+
+      if (currentGroup.length > 0) {
+        groups.push(currentGroup);
+      }
+
+      currentGroup = [step];
+    }
+
+    if (currentGroup.length > 0) {
+      groups.push(currentGroup);
+    }
+
+    return groups;
   }
 
   private shouldRequireApproval(step: PlanStep): boolean {

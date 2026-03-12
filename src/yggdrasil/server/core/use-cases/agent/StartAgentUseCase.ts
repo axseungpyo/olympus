@@ -5,6 +5,7 @@ import type { IAgentProcessRegistry } from "../../ports/IAgentProcessRegistry";
 import type { IProcessGateway } from "../../ports/IProcessGateway";
 import type { ITaskRepository } from "../../ports/ITaskRepository";
 import { AGENT_STARTED_EVENT } from "../../events/AgentStarted";
+import type { MonitorAgentUseCase } from "./MonitorAgentUseCase";
 
 const DANGEROUS_MODES = new Set(["ragnarok"]);
 
@@ -29,6 +30,7 @@ export class StartAgentUseCase {
     private readonly processGateway: IProcessGateway,
     private readonly processRegistry: IAgentProcessRegistry,
     private readonly eventBus?: IEventBus,
+    private readonly monitorUseCase?: MonitorAgentUseCase,
   ) {}
 
   async execute(input: StartAgentInput): Promise<StartAgentResult> {
@@ -61,6 +63,7 @@ export class StartAgentUseCase {
 
     try {
       const child = this.processGateway.spawn(scriptPath, [task.id], { AGENT_MODE: modeResult.mode });
+      this.monitorUseCase?.startMonitoring(input.agentName, task.id, child);
       child.unref();
       this.processRegistry.set({
         process: child,
