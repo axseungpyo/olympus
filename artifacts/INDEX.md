@@ -17,6 +17,7 @@ Last updated: 2026-03-11
 | TP-024 | Tool Use — 파일/CLI 직접 조작 + Tool Executor 패턴 (Plan B3) | codex | done | 2026-03-12 | 2026-03-12 |
 | TP-025 | Tool Safety — 승인 플로우 + 경로 화이트리스트 + 실행 로깅 (Plan B3) | codex | done | 2026-03-12 | 2026-03-12 |
 | TP-026 | Planner — 멀티스텝 실행 계획 엔진 (Plan B4) | codex | done | 2026-03-12 | 2026-03-12 |
+| TP-027 | 자율 레벨 UI — Level 1/2/3 + Plan 시각화 (Plan B4) | codex | done | 2026-03-12 | 2026-03-12 |
 
 ## Completed Tasks
 
@@ -38,4 +39,4 @@ Last updated: 2026-03-11
 | TP-004 | 랜딩 페이지 스크린샷 분석 및 UI 클론 | gemini | 2026-03-09 |
 | TP-005 | API 문서 자동 생성 (Swagger/OpenAPI) | codex | 2026-03-09 |
 
-## Next TP Number: TP-027
+## Next TP Number: TP-028

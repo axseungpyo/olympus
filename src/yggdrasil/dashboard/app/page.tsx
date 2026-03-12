@@ -8,6 +8,7 @@ import type {
   WSMessage,
   AgentName,
   MetricsResponse,
+  PlanProgressPayload,
 } from "../lib/types";
 import {
   authFetch,
@@ -32,6 +33,8 @@ import ApiKeysModal from "../components/settings/ApiKeysModal";
 import CommandBar from "../components/odin/CommandBar";
 import TaskBoard from "../components/tasks/TaskBoard";
 import ControlView from "../components/agents/ControlView";
+import { AutonomySelector } from "../components/autonomy-selector";
+import { PlanProgress } from "../components/plan-progress";
 import type { DependencyGraphResponse } from "../lib/types";
 
 const WS_BASE = getWsBase();
@@ -54,6 +57,7 @@ export default function DashboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null);
+  const [planProgress, setPlanProgress] = useState<PlanProgressPayload | null>(null);
   const [authToken, setAuthToken] = useState("");
   const [tokenInput, setTokenInput] = useState("");
   const [authReady, setAuthReady] = useState(false);
@@ -150,6 +154,7 @@ export default function DashboardPage() {
     const msg = statusMsg as WSMessage;
     if (msg.type === "status") setAgents(msg.data);
     else if (msg.type === "chronicle") setTasks(msg.data);
+    else if (msg.type === "plan_progress") setPlanProgress(msg.data);
   }, [statusMsg]);
 
   // Browser notifications for agent state changes
@@ -267,6 +272,11 @@ export default function DashboardPage() {
           </section>
         ) : viewMode === "overview" ? (
           <div className="space-y-10">
+            <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
+              <AutonomySelector />
+              <PlanProgress message={planProgress} />
+            </div>
+
             <QuickActions />
 
             <section>

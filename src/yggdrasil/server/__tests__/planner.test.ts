@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { InMemoryPlanRepository } from "../adapters/repositories/InMemoryPlanRepository";
+import { InMemorySettingsRepository } from "../adapters/repositories/InMemorySettingsRepository";
 import { InMemoryApprovalStore } from "../adapters/stores/InMemoryApprovalStore";
 import { PlannerToolExecutor } from "../adapters/tools/PlannerToolExecutor";
 import { PLAN_PROGRESS_EVENT } from "../core/events/PlanProgress";
@@ -62,16 +63,19 @@ class StubToolExecutor implements IToolExecutor {
 
 function createPlanner(toolExecutors: IToolExecutor[]) {
   const eventBus = new StubEventBus();
+  const settingsRepository = new InMemorySettingsRepository();
+  settingsRepository.setAutonomyLevel(2);
   const plannerUseCase = new PlannerUseCase(
     new InMemoryPlanRepository(),
     toolExecutors,
     new InMemoryApprovalStore(),
     new MemoryMessageRepository(),
     eventBus,
+    settingsRepository,
     "/tmp/asgard",
   );
 
-  return { plannerUseCase, eventBus };
+  return { plannerUseCase, eventBus, settingsRepository };
 }
 
 async function createSamplePlan(plannerUseCase: PlannerUseCase) {
@@ -240,6 +244,52 @@ describe("PlannerUseCase", () => {
     expect(result.steps[0]?.status).toBe("completed");
     expect(result.steps[1]?.status).toBe("pending");
     expect(implementExecutor.calls).toEqual([]);
+  });
+
+  it("forces approval for every step at autonomy level 1", async () => {
+    const analyzeExecutor = new StubToolExecutor("analyze", async () => ({ success: true, output: "analysis done" }));
+    const { plannerUseCase, settingsRepository } = createPlanner([analyzeExecutor]);
+    settingsRepository.setAutonomyLevel(1);
+
+    const plan = await plannerUseCase.createPlan("ship feature", [
+      {
+        action: "analyze",
+        description: "Analyze codebase",
+        input: { path: "src" },
+        requiresApproval: false,
+      },
+    ]);
+
+    expect(plan.steps[0]?.requiresApproval).toBe(true);
+
+    const result = await plannerUseCase.executePlan(plan.id);
+
+    expect(result.status).toBe("paused");
+    expect(result.currentStep).toBe(1);
+    expect(analyzeExecutor.calls).toEqual([]);
+  });
+
+  it("only requires approval for risky actions at autonomy level 3", async () => {
+    const analyzeExecutor = new StubToolExecutor("analyze", async () => ({ success: true, output: "analysis done" }));
+    const { plannerUseCase, settingsRepository } = createPlanner([analyzeExecutor]);
+    settingsRepository.setAutonomyLevel(3);
+
+    const plan = await plannerUseCase.createPlan("ship feature", [
+      {
+        action: "analyze",
+        description: "Analyze codebase",
+        input: { path: "src" },
+        requiresApproval: true,
+      },
+      {
+        action: "write_file",
+        description: "Write output",
+        input: { path: "feature.ts" },
+        requiresApproval: false,
+      },
+    ]);
+
+    expect(plan.steps.map((step) => step.requiresApproval)).toEqual([false, true]);
   });
 });
 

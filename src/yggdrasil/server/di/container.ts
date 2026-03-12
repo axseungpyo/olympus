@@ -13,6 +13,7 @@ import { NodeFileSystem } from "../adapters/filesystem/NodeFileSystem";
 import { HealthController } from "../adapters/controllers/HealthController";
 import { McpController } from "../adapters/controllers/McpController";
 import { OdinController } from "../adapters/controllers/OdinController";
+import { SettingsController } from "../adapters/controllers/SettingsController";
 import { TaskController } from "../adapters/controllers/TaskController";
 import { ChildProcessGateway } from "../adapters/gateways/ChildProcessGateway";
 import { ClaudeLLMGateway } from "../adapters/gateways/ClaudeLLMGateway";
@@ -21,6 +22,7 @@ import { FileAgentRepository } from "../adapters/repositories/FileAgentRepositor
 import { InProcessEventBus } from "../adapters/events/InProcessEventBus";
 import { FileMessageRepository } from "../adapters/repositories/FileMessageRepository";
 import { InMemoryPlanRepository } from "../adapters/repositories/InMemoryPlanRepository";
+import { InMemorySettingsRepository } from "../adapters/repositories/InMemorySettingsRepository";
 import { FileTaskRepository } from "../adapters/repositories/FileTaskRepository";
 import { FileSkillRegistry } from "../adapters/skills/FileSkillRegistry";
 import { FileSystemToolExecutor } from "../adapters/tools/FileSystemToolExecutor";
@@ -34,6 +36,7 @@ import { StopAgentUseCase } from "../core/use-cases/agent/StopAgentUseCase";
 import { ProcessApprovalUseCase } from "../core/use-cases/odin/ProcessApprovalUseCase";
 import { ProcessCommandUseCase } from "../core/use-cases/odin/ProcessCommandUseCase";
 import type { IEventBus } from "../core/ports/IEventBus";
+import type { ISettingsRepository } from "../core/ports/ISettingsRepository";
 import { PlannerUseCase } from "../core/use-cases/plan/PlannerUseCase";
 import { CreateTaskUseCase } from "../core/use-cases/task/CreateTaskUseCase";
 import { DeleteTaskUseCase } from "../core/use-cases/task/DeleteTaskUseCase";
@@ -53,6 +56,7 @@ export interface Container {
   regexFallbackGateway: ILLMGateway;
   processRegistry: IAgentProcessRegistry;
   eventBus: IEventBus;
+  settingsRepository: ISettingsRepository;
   startAgentUseCase: StartAgentUseCase;
   stopAgentUseCase: StopAgentUseCase;
   getAgentStatusUseCase: GetAgentStatusUseCase;
@@ -70,6 +74,7 @@ export interface Container {
   healthController: HealthController;
   mcpController: McpController;
   documentController: DocumentController;
+  settingsController: SettingsController;
   asgardRoot: string;
 }
 
@@ -81,6 +86,7 @@ export function createContainer(asgardRoot: string): Container {
   const agentRepository = new FileAgentRepository(asgardRoot, () => processRegistry.snapshot());
   const messageRepository = new FileMessageRepository(asgardRoot);
   const approvalStore = new InMemoryApprovalStore();
+  const settingsRepository = new InMemorySettingsRepository();
   const startAgentUseCase = new StartAgentUseCase(taskRepository, agentRepository, processGateway, processRegistry, eventBus);
   const stopAgentUseCase = new StopAgentUseCase(agentRepository, processGateway, processRegistry, eventBus);
   const getAgentStatusUseCase = new GetAgentStatusUseCase(agentRepository, taskRepository);
@@ -109,6 +115,7 @@ export function createContainer(asgardRoot: string): Container {
     approvalStore,
     messageRepository,
     eventBus,
+    settingsRepository,
     asgardRoot,
   );
   const plannerToolExecutor = new PlannerToolExecutor(plannerUseCase);
@@ -139,6 +146,7 @@ export function createContainer(asgardRoot: string): Container {
   const healthController = new HealthController(asgardRoot, agentRepository);
   const mcpController = new McpController(asgardRoot);
   const documentController = new DocumentController(asgardRoot, agentRepository);
+  const settingsController = new SettingsController(settingsRepository);
 
   return {
     taskRepository,
@@ -152,6 +160,7 @@ export function createContainer(asgardRoot: string): Container {
     regexFallbackGateway,
     processRegistry,
     eventBus,
+    settingsRepository,
     startAgentUseCase,
     stopAgentUseCase,
     getAgentStatusUseCase,
@@ -169,6 +178,7 @@ export function createContainer(asgardRoot: string): Container {
     healthController,
     mcpController,
     documentController,
+    settingsController,
     asgardRoot,
   };
 }

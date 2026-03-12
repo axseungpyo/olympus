@@ -4,6 +4,7 @@ import type { IApprovalStore } from "../../ports/IApprovalStore";
 import type { IEventBus } from "../../ports/IEventBus";
 import type { IMessageRepository } from "../../ports/IMessageRepository";
 import type { IPlanRepository } from "../../ports/IPlanRepository";
+import type { ISettingsRepository } from "../../ports/ISettingsRepository";
 import type { IToolExecutor } from "../../ports/IToolExecutor";
 
 export class PlannerUseCase {
@@ -15,6 +16,7 @@ export class PlannerUseCase {
     private readonly approvalStore: IApprovalStore,
     private readonly messageRepository: IMessageRepository,
     private readonly eventBus: IEventBus,
+    private readonly settingsRepository: ISettingsRepository,
     private readonly projectRoot: string,
   ) {
     this.toolExecutors = toolExecutors;
@@ -35,7 +37,15 @@ export class PlannerUseCase {
         description: step.description,
         input: step.input,
         dependsOn: step.dependsOn,
-        requiresApproval: step.requiresApproval ?? false,
+        requiresApproval: this.shouldRequireApproval({
+          order: step.order ?? index + 1,
+          action: step.action,
+          description: step.description,
+          input: step.input,
+          dependsOn: step.dependsOn,
+          requiresApproval: step.requiresApproval ?? false,
+          status: step.status ?? "pending",
+        }),
         status: "pending",
       })),
       status: "draft",
@@ -108,6 +118,19 @@ export class PlannerUseCase {
 
   async resumePlan(planId: string): Promise<ExecutionPlan> {
     return this.executePlan(planId);
+  }
+
+  private shouldRequireApproval(step: PlanStep): boolean {
+    const level = this.settingsRepository.getAutonomyLevel();
+    if (level === 1) {
+      return true;
+    }
+
+    if (level === 2) {
+      return step.requiresApproval;
+    }
+
+    return ["delegate_task", "stop_agent", "write_file"].includes(step.action);
   }
 
   private async executeStepWithRetry(plan: ExecutionPlan, step: PlanStep): Promise<boolean> {
