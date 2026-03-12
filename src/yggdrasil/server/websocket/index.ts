@@ -70,4 +70,20 @@ export function setupWebSockets(
       data: event.payload,
     });
   });
+
+  const agentStatusInterval = setInterval(async () => {
+    try {
+      const states = await container.getAgentStatusUseCase.execute();
+      broadcast(wssStatus, {
+        type: "agent_status",
+        data: states,
+      });
+    } catch {
+      // Ignore interval failures and continue streaming later updates.
+    }
+  }, 10000);
+
+  server.on("close", () => {
+    clearInterval(agentStatusInterval);
+  });
 }

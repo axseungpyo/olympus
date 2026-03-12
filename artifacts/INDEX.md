@@ -20,6 +20,7 @@ Last updated: 2026-03-11
 | TP-027 | 자율 레벨 UI — Level 1/2/3 + Plan 시각화 (Plan B4) | codex | done | 2026-03-12 | 2026-03-12 |
 | TP-028 | 병렬 에이전트 실행 + 실시간 스트리밍 (Plan B5) | codex | done | 2026-03-12 | 2026-03-12 |
 | TP-029 | 에이전트 간 컨텍스트 공유 (Plan B5) | codex | done | 2026-03-12 | 2026-03-12 |
+| TP-030 | Cowork Dashboard — 최종 통합 UI (Plan B6) | codex | done | 2026-03-12 | 2026-03-12 |
 
 ## Completed Tasks
 
@@ -41,4 +42,4 @@ Last updated: 2026-03-11
 | TP-004 | 랜딩 페이지 스크린샷 분석 및 UI 클론 | gemini | 2026-03-09 |
 | TP-005 | API 문서 자동 생성 (Swagger/OpenAPI) | codex | 2026-03-09 |
 
-## Next TP Number: TP-030
+## Next TP Number: TP-031

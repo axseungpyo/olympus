@@ -3,13 +3,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import type {
   AgentState,
-  AgentProgressPayload,
   Task,
   LogEntry,
   WSMessage,
   AgentName,
   MetricsResponse,
-  PlanProgressPayload,
 } from "../lib/types";
 import {
   authFetch,
@@ -31,12 +29,15 @@ import StatsPanel from "../components/monitoring/StatsPanel";
 import QuickActions from "../components/odin/QuickActions";
 import DependencyView from "../components/monitoring/DependencyView";
 import ApiKeysModal from "../components/settings/ApiKeysModal";
-import CommandBar from "../components/odin/CommandBar";
 import TaskBoard from "../components/tasks/TaskBoard";
 import ControlView from "../components/agents/ControlView";
 import { AutonomySelector } from "../components/autonomy-selector";
-import { AgentProgress } from "../components/agent-progress";
 import { PlanProgress } from "../components/plan-progress";
+import { ActiveWork } from "../components/cowork/active-work";
+import { ChatPanel } from "../components/cowork/chat-panel";
+import { OdinThinking } from "../components/cowork/odin-thinking";
+import { TeamPanel } from "../components/cowork/team-panel";
+import { useCoworkState } from "../hooks/useCoworkState";
 import type { DependencyGraphResponse } from "../lib/types";
 
 const WS_BASE = getWsBase();
@@ -59,8 +60,6 @@ export default function DashboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null);
-  const [planProgress, setPlanProgress] = useState<PlanProgressPayload | null>(null);
-  const [agentProgress, setAgentProgress] = useState<Map<string, AgentProgressPayload>>(new Map());
   const [authToken, setAuthToken] = useState("");
   const [tokenInput, setTokenInput] = useState("");
   const [authReady, setAuthReady] = useState(false);
@@ -85,6 +84,7 @@ export default function DashboardPage() {
   );
   const { lastMessage: statusMsg, isConnected: statusConnected } =
     useWebSocket(statusWsUrl);
+  const coworkState = useCoworkState(authToken, isAuthenticated);
 
   const isConnected = logsConnected || statusConnected;
 
@@ -157,30 +157,6 @@ export default function DashboardPage() {
     const msg = statusMsg as WSMessage;
     if (msg.type === "status") setAgents(msg.data);
     else if (msg.type === "chronicle") setTasks(msg.data);
-    else if (msg.type === "plan_progress") setPlanProgress(msg.data);
-    else if (msg.type === "agent_progress") {
-      setAgentProgress((prev) => {
-        const next = new Map(prev);
-        const key = `${msg.data.agent}-${msg.data.tp}`;
-        next.set(key, msg.data);
-
-        if (msg.data.status !== "running") {
-          window.setTimeout(() => {
-            setAgentProgress((current) => {
-              const currentEntry = current.get(key);
-              if (!currentEntry || currentEntry.timestamp !== msg.data.timestamp) {
-                return current;
-              }
-              const updated = new Map(current);
-              updated.delete(key);
-              return updated;
-            });
-          }, 5000);
-        }
-
-        return next;
-      });
-    }
   }, [statusMsg]);
 
   // Browser notifications for agent state changes
@@ -297,31 +273,22 @@ export default function DashboardPage() {
             <StatsPanel tasks={tasks} metrics={metrics} />
           </section>
         ) : viewMode === "overview" ? (
-          <div className="space-y-10">
-            <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
+          <div className="grid grid-cols-1 xl:grid-cols-[240px_minmax(0,1fr)] gap-4 min-h-[calc(100vh-220px)]">
+            <aside className="min-h-0">
+              <TeamPanel
+                agents={coworkState.agents}
+                activeWork={coworkState.activeWork}
+                odinMessages={coworkState.odinMessages}
+              />
+            </aside>
+
+            <div className="min-h-0 flex flex-col gap-4">
               <AutonomySelector />
-              <PlanProgress message={planProgress} />
+              <ActiveWork items={coworkState.activeWork} />
+              <OdinThinking messages={coworkState.odinMessages} />
+              <PlanProgress message={coworkState.plan} />
+              <ChatPanel messages={coworkState.odinMessages} className="flex-1 min-h-[320px]" />
             </div>
-
-            <AgentProgress agents={Array.from(agentProgress.values()).sort((a, b) => b.timestamp - a.timestamp)} />
-
-            <QuickActions />
-
-            <section>
-              <h2 className="text-[13px] font-mono font-medium text-slate-400 uppercase tracking-[0.15em] mb-4">Agents</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-                {agents.map((agent) => (
-                  <AgentCard key={agent.name} agent={agent} tasks={tasks.map(t => ({ id: t.id, title: t.title }))} />
-                ))}
-              </div>
-            </section>
-
-            <section>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                <Chronicle tasks={tasks} onDocClick={handleDocClick} />
-                <LiveLog logs={logs} />
-              </div>
-            </section>
           </div>
         ) : (
           <div className="space-y-10">
@@ -370,8 +337,6 @@ export default function DashboardPage() {
       )}
 
       {showApiKeys && <ApiKeysModal onClose={() => setShowApiKeys(false)} />}
-
-      {isAuthenticated && <CommandBar isConnected={isConnected} />}
 
       {!isAuthenticated && (
         <>
