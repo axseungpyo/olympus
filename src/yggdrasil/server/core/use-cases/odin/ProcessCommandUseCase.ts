@@ -74,6 +74,36 @@ const ODIN_TOOLS: LLMToolDefinition[] = [
     },
   },
   {
+    name: "create_plan",
+    description: "멀티스텝 실행 계획을 생성하고 실행한다",
+    input_schema: {
+      type: "object",
+      properties: {
+        goal: { type: "string", description: "최종 목표" },
+        steps: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              action: { type: "string", description: "tool 이름" },
+              description: { type: "string" },
+              input: { type: "object" },
+              dependsOn: { type: "array", items: { type: "number" } },
+              requiresApproval: { type: "boolean" },
+            },
+            required: ["action", "description", "input"],
+          },
+        },
+      },
+      required: ["goal", "steps"],
+    },
+  },
+  {
+    name: "get_plan_status",
+    description: "현재 실행 중인 계획의 상태를 조회한다",
+    input_schema: { type: "object", properties: {}, additionalProperties: false },
+  },
+  {
     name: "read_file",
     description: "프로젝트 파일을 읽는다 (최대 10,000자)",
     input_schema: {

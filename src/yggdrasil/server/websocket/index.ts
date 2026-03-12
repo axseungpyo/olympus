@@ -1,4 +1,5 @@
 import http from "http";
+import { PLAN_PROGRESS_EVENT } from "../core/events/PlanProgress";
 import type { IEventBus } from "../core/ports/IEventBus";
 import type { Container } from "../di/container";
 import type { AsgardWatcher } from "../infra/watcher";
@@ -45,5 +46,12 @@ export function setupWebSockets(
       broadcast,
       wssOdin
     );
+  });
+
+  eventBus.subscribe(PLAN_PROGRESS_EVENT, (event) => {
+    broadcast(wssStatus, {
+      type: "plan_progress",
+      data: event.payload,
+    });
   });
 }

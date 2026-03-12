@@ -20,9 +20,11 @@ import { RegexFallbackGateway } from "../adapters/gateways/RegexFallbackGateway"
 import { FileAgentRepository } from "../adapters/repositories/FileAgentRepository";
 import { InProcessEventBus } from "../adapters/events/InProcessEventBus";
 import { FileMessageRepository } from "../adapters/repositories/FileMessageRepository";
+import { InMemoryPlanRepository } from "../adapters/repositories/InMemoryPlanRepository";
 import { FileTaskRepository } from "../adapters/repositories/FileTaskRepository";
 import { FileSkillRegistry } from "../adapters/skills/FileSkillRegistry";
 import { FileSystemToolExecutor } from "../adapters/tools/FileSystemToolExecutor";
+import { PlannerToolExecutor } from "../adapters/tools/PlannerToolExecutor";
 import { SkillToolExecutor } from "../adapters/tools/SkillToolExecutor";
 import { AgentProcessRegistry } from "../adapters/stores/AgentProcessRegistry";
 import { InMemoryApprovalStore } from "../adapters/stores/InMemoryApprovalStore";
@@ -32,6 +34,7 @@ import { StopAgentUseCase } from "../core/use-cases/agent/StopAgentUseCase";
 import { ProcessApprovalUseCase } from "../core/use-cases/odin/ProcessApprovalUseCase";
 import { ProcessCommandUseCase } from "../core/use-cases/odin/ProcessCommandUseCase";
 import type { IEventBus } from "../core/ports/IEventBus";
+import { PlannerUseCase } from "../core/use-cases/plan/PlannerUseCase";
 import { CreateTaskUseCase } from "../core/use-cases/task/CreateTaskUseCase";
 import { DeleteTaskUseCase } from "../core/use-cases/task/DeleteTaskUseCase";
 import { GetTaskUseCase } from "../core/use-cases/task/GetTaskUseCase";
@@ -58,6 +61,7 @@ export interface Container {
   getTaskUseCase: GetTaskUseCase;
   updateTaskStatusUseCase: UpdateTaskStatusUseCase;
   deleteTaskUseCase: DeleteTaskUseCase;
+  plannerUseCase: PlannerUseCase;
   processCommandUseCase: ProcessCommandUseCase;
   processApprovalUseCase: ProcessApprovalUseCase;
   agentController: AgentController;
@@ -98,6 +102,18 @@ export function createContainer(asgardRoot: string): Container {
   const fileSystemToolExecutor = new FileSystemToolExecutor(nodeFileSystem, asgardRoot, eventBus);
   const skillToolExecutor = new SkillToolExecutor(skillRegistry);
   const toolExecutors: IToolExecutor[] = [fileSystemToolExecutor, skillToolExecutor];
+  const planRepository = new InMemoryPlanRepository();
+  const plannerUseCase = new PlannerUseCase(
+    planRepository,
+    toolExecutors,
+    approvalStore,
+    messageRepository,
+    eventBus,
+    asgardRoot,
+  );
+  const plannerToolExecutor = new PlannerToolExecutor(plannerUseCase);
+  toolExecutors.push(plannerToolExecutor);
+  plannerUseCase.setToolExecutors(toolExecutors);
   const processCommandUseCase = new ProcessCommandUseCase(
     messageRepository,
     skillRegistry,
@@ -144,6 +160,7 @@ export function createContainer(asgardRoot: string): Container {
     getTaskUseCase,
     updateTaskStatusUseCase,
     deleteTaskUseCase,
+    plannerUseCase,
     processCommandUseCase,
     processApprovalUseCase,
     agentController,
